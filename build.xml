@@ -9,7 +9,7 @@
 
     <path id="build.classpath">
 	<fileset dir="${thirdparty}">
-	    <include name="commons-cli-1.2.jar" />
+	    <include name="**/*.jar" />
 	</fileset>
     </path>
     

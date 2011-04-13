@@ -7,4 +7,9 @@
 # $LastChangedBy$ 
 # 
 
-java -cp dist/pati.jar:thirdparty/commons-cli-1.2.jar -Djava.util.logging.config.file=logging.properties Indexer $*
+CLASSPATH=.:dist/pati.jar
+for J in thirdparty/*.jar; do
+    CLASSPATH=$CLASSPATH:$J
+done
+
+java -cp $CLASSPATH -Djava.util.logging.config.file=logging.properties Indexer $*
