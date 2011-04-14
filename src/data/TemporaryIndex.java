@@ -4,12 +4,12 @@ import java.util.Vector;
 
 public class TemporaryIndex {
 	
-	private Vector<Keyword> keywordList;
+	private Vector<Integer> keywordList;
 	private int documentId;
 	
-	public TemporaryIndex(Vector<Keyword> keywordList,int documentId){
+	public TemporaryIndex(int documentId){
 		setDocumentId(documentId);
-		setKeywordList(keywordList);
+		setKeywordList(new Vector<Integer>());
 		
 	}
 	
@@ -20,13 +20,15 @@ public class TemporaryIndex {
 	public int getDocumentId() {
 		return documentId;
 	}
-	public void setKeywordList(Vector<Keyword> keywordList) {
+	public void setKeywordList(Vector<Integer> keywordList) {
 		this.keywordList = keywordList;
 	}
-	public Vector<Keyword> getKeywordList() {
+	public Vector<Integer> getKeywordList() {
 		return keywordList;
 	}
 	
-	
+	public void addKeyword(int keywordId){
+		if(!keywordList.contains(keywordId)) this.keywordList.add(keywordId);
+	}
 	
 }
