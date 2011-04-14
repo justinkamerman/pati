@@ -1,8 +1,9 @@
 DROP TABLE IF EXISTS `DocumentProcessed`;
 CREATE TABLE `DocumentProcessed` (
   `DocumentId` int(10) unsigned NOT NULL,
-  `Processed` boolean NOT NULL
-) ENGINE=InnoDB 
+  `Processed` boolean NOT NULL,
+  PRIMARY KEY (`DocumentId`)
+) ENGINE=InnoDB;
 
 DROP VIEW IF EXISTS `Document`;
 CREATE VIEW `Document` ( Id, Content, Author, Title, Link, Processed ) AS 

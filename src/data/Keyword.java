@@ -1,4 +1,6 @@
 package data;
+
+import java.util.List;
 import java.util.Vector;
 
 
@@ -9,25 +11,25 @@ public class Keyword {
 	private Vector<String> synonyms;
 	
 	
-	
-	public Keyword(String canon, int id, Vector<String> synonyms){
-		this.setCanon(canon);
-		this.setId(id);
-		this.setSynonyms(synonyms);
-		
-	}
+   public Keyword (String canon)
+   {
+       this.setCanon (canon);
+       this.synonyms = new Vector<String> ();
+   }
 	
 
-	public void setId(int id) {
-		this.id = id;
+	public Keyword (String canon, List<String> synonyms){
+		this.setCanon(canon);
+		this.setSynonyms(synonyms);
 	}
+	
 	public int getId() {
-		return id;
+       return canon.hashCode();
 	}
-	public void setSynonyms(Vector<String> synonyms) {
-		this.synonyms = synonyms;
+	public void setSynonyms(List<String> synonyms) {
+       this.synonyms = new Vector (synonyms);
 	}
-	public Vector<String> getSynonyms() {
+	public List<String> getSynonyms() {
 		return synonyms;
 	}
 	public void setCanon(String canon) {
@@ -37,5 +39,21 @@ public class Keyword {
 		return canon;
 	}
 
-	
+    public void addSynonym (String synonym)
+    {
+        this.synonyms.add (synonym);
+    }
+
+    
+    public String toString ()
+    {
+        StringBuffer sb = new StringBuffer ();
+        sb.append ("[canon=" + canon + "][synonyms=[");
+        for (String synonym : synonyms)
+        {
+            sb.append (synonym + ", ");
+        }
+        sb.append ("]]");
+        return sb.toString();
+    }
 }

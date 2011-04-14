@@ -16,9 +16,12 @@ import org.apache.commons.cli.ParseException;
 import snaq.db.ConnectionPoolManager;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 import data.Document;
 import data.DocumentDAO;
+import data.Keyword;
+import data.KeywordDAO;
 
 
 public class Indexer extends Thread
@@ -70,8 +73,17 @@ public class Indexer extends Thread
             System.exit (1);
         }
         
-        log.info ("Indexer starting. Document batch size set to " + __docBatchSize);
+        // Load keywords
+        log.info ("Loading keywords");
+        List<Keyword> keywords = KeywordDAO.getInstance().getKeywords();
+        for (Keyword keyword : keywords)
+        {
+            log.info ("Loaded keyword " + keyword.toString());
+        }
+        
 
+        // Index documents
+        log.info ("Indexer starting. Document batch size set to " + __docBatchSize);
         while ( ! shutdown() )
         {
             List<Document> documents = DocumentDAO.getInstance().getDocuments (__docBatchSize);
@@ -82,7 +94,7 @@ public class Indexer extends Thread
                 log.info (document.toString());
             }
 
-            // Index documents - just sleep for now
+            // Create index - just sleep for now
             log.info ("Indexing documents");
             try
             {
