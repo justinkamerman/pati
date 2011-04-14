@@ -53,12 +53,11 @@ public class Document
 
     public String toString ()
     {
-        return String.format ("[id=%d][author=%s][title=%s][link=%s][content=%s]",
+        return String.format ("[id=%d][author=%s][title=%s][link=%s]",
                               __id,
                               __author,
                               __title,
-                              __link,
-                              __content);
+                              __link);
     }
 }
     

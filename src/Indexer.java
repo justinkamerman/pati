@@ -71,16 +71,27 @@ public class Indexer extends Thread
         }
         
         log.info ("Indexer starting. Document batch size set to " + __docBatchSize);
-        int i = 1;
+
         while ( ! shutdown() )
         {
-            log.info ("Retrieving document batch");
-            //List<Document> documents = DocumentDAO.getInstance().getDocuments (__docBatchSize);
-            Document document = DocumentDAO.getInstance().getDocumentById (i++);
-            log.info (document.toString());
-            
+            List<Document> documents = DocumentDAO.getInstance().getDocuments (__docBatchSize);
+            log.info ("Retrieved " + documents.size() + " unprocessed documents.");
+
+            for (Document document : documents)
+            {
+                log.info (document.toString());
+            }
+
+            // Index documents - just sleep for now
             log.info ("Indexing documents");
-            // Indexing stuff here
+            try
+            {
+                Thread.currentThread().sleep (5000);
+            }
+            catch (InterruptedException ex)
+            {
+                log.severe ("Interrupted sleep!");
+            }
         }
 
         log.info ("Indexer shutting down");

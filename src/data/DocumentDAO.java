@@ -52,7 +52,8 @@ public class DocumentDAO
         try 
         {
             Connection con = __cpm.getConnection (__connectionPoolName);
-            PreparedStatement stmt = con.prepareStatement ("SELECT ID, BlogContent, Author, Title, Link FROM blog WHERE ID = ?");
+            PreparedStatement stmt = con.prepareStatement 
+                ("SELECT ID, BlogContent, Author, Title, Link FROM blog WHERE ID = ?");
             stmt.setInt (1, id);
             ResultSet rs = stmt.executeQuery ();
             
@@ -77,12 +78,65 @@ public class DocumentDAO
 
 
     /**
-     * Return count documents and mark them as 'processed' so that
-     * they will not be returned agian by another call to this method.
+     * Return up to 'count' unprocessed documents and mark them as
+     * 'processed'.
      */
     public List<Document> getDocuments (int count)
     {
-
-        return new ArrayList<Document> ();
+        ArrayList<Document> documents = new ArrayList<Document>();
+        Connection con = null;
+        try 
+        {
+            con = __cpm.getConnection (__connectionPoolName);
+            con.setAutoCommit (false);
+            PreparedStatement selectStmt = con.prepareStatement 
+                ("SELECT Id, Content, Author, Title, Link, Processed " + 
+                 "FROM Document WHERE Processed IS NULL LIMIT 0,? FOR UPDATE");
+            PreparedStatement insertStmt = con.prepareStatement 
+                ("INSERT INTO DocumentProcessed (DocumentId, Processed) VALUES ( ?, 1)");
+            selectStmt.setInt (1, count);
+            ResultSet rs = selectStmt.executeQuery ();
+            
+            while (rs.next()) 
+            {
+                Document document = new Document (rs.getInt ("Id"),
+                                                  rs.getString ("Content"),
+                                                  rs.getString ("Author"),
+                                                  rs.getString ("Title"),
+                                                  rs.getString ("Link"));
+                documents.add (document);
+                insertStmt.setInt (1, document.getId());
+                insertStmt.executeUpdate ();
+            }
+            
+            con.commit();
+        } 
+        catch(SQLException ex) 
+        {
+            log.severe ("Exception retrieving unprocessed documents: " + ex.toString());
+            try
+            {
+                con.rollback ();
+            }
+            catch (SQLException ex2)
+            {
+                log.severe ("Exception rolling back transaction: " + ex2.toString());
+            }
+        } 
+        finally 
+        {
+            try
+            {
+                con.setAutoCommit (true);
+                con.close ();
+            }
+            catch (SQLException ex)
+            {
+                log.severe ("Exception closing database connection: " + ex.toString ());
+            }
+        }
+  
+        return documents; 
     }
 }
+
