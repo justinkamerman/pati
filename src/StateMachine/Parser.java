@@ -3,8 +3,12 @@ package StateMachine;
 import data.Document;
 import data.TemporaryIndex;
 
+
 public class Parser {
 
+	/* give a document in input and this function return the temporaryIndex built by 
+	 * parsing this document into the state machine
+	 */
 	public TemporaryIndex parse(Document document){
 		TemporaryIndex temporaryIndex = new TemporaryIndex(document.getId());
 		

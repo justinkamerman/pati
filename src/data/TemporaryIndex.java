@@ -27,6 +27,7 @@ public class TemporaryIndex {
 		return keywordList;
 	}
 	
+	//add keyword to the list of keyword
 	public void addKeyword(int keywordId){
 		if(!keywordList.contains(keywordId)) this.keywordList.add(keywordId);
 	}

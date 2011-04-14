@@ -1,7 +1,7 @@
 package StateMachine;
 import java.util.Vector;
 
-
+//class that does a mapping between a letter and a state
 
 public class GoToFunction {
 
@@ -26,6 +26,7 @@ public class GoToFunction {
 		nextState.add(s);
 	}
 
+	//check if the character a belongs to the list of characters
 	public Integer belongsTo(char a){
 		if (nextCharacter !=null){
 			return nextCharacter.indexOf(a);

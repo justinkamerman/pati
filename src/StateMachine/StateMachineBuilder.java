@@ -13,7 +13,6 @@ public class StateMachineBuilder {
 	public static Vector<Character> CHARACTERS = new Vector<Character>();
 	public StateMachineBuilder(){
 	
-		
 		CHARACTERS.add('a');
 		CHARACTERS.add('b');
 		CHARACTERS.add('c');
@@ -46,9 +45,9 @@ public class StateMachineBuilder {
 		
 	}
 
+	//build the state machine and store it into the static attribute in StateMachineBuilder
 	public State createStateMachine(Vector<Keyword> keywords){
-		
-		
+			
 		State initialState = new State(0);
 		lastStateId=0;
 		
@@ -112,6 +111,8 @@ public class StateMachineBuilder {
 		return initialState;
 	}
 	
+	
+	//Enter one keyword into the state machine
 	public void enterKeyword(int keywordId, String keyword, State initialState){
 		State state=initialState;
 		for (int i=0;i<keyword.length();i++){
@@ -132,6 +133,13 @@ public class StateMachineBuilder {
 	}
 	
 	
+	public static State getStateMachine(){
+		return initialState;
+	}
+	
+	
+	
+	/*debug function to print the graph of the state machine*/
 	public void printGraph(State initialState){
 		Vector<State> queue = new Vector<State>();
 		queue.add(initialState);
