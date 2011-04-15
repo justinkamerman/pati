@@ -1,9 +1,9 @@
 /**
- * $Id: Indexer.java 1 2011-04-08 12:33:24Z justinkamerman $ 
+ * $Id$ 
  *
- * $LastChangedDate: 2011-04-08 09:33:24 -0300 (Fri, 08 Apr 2011) $ 
+ * $LastChangedDate$ 
  * 
- * $LastChangedBy: justinkamerman $
+ * $LastChangedBy$
  */
 package data;
 
