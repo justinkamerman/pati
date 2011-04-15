@@ -26,8 +26,10 @@ public class KeywordDAO
     private ConnectionPoolManager __cpm = null;
     private String __connectionPoolName = "mysql";
 
-    // Cache
-    private HashMap<String, Keyword> __keywords = new HashMap<String, Keyword>();
+    // Cache: map keywordID=>keyword
+    private HashMap<Integer, Keyword> __keywords = new HashMap<Integer, Keyword>();
+    // Cache: map synonym=>keyword
+    private HashMap<String, String> __synonyms = new HashMap<String, String>();
 
 
     private KeywordDAO ()
@@ -57,15 +59,18 @@ public class KeywordDAO
             {
                 String canon = rs.getString("canon");
                 String synonym = rs.getString("synonym");
-                Keyword keyword = __keywords.get (canon);
+                Keyword keyword = __keywords.get (canon.hashCode());
 
                 if (keyword == null)
                 {
                     keyword = new Keyword (canon);
-                    __keywords.put (canon, keyword);
+                    keyword.addSynonym (canon);  
+                    __synonyms.put (canon, canon);
+                    __keywords.put (keyword.getId(), keyword);
                 }
 
                 keyword.addSynonym (synonym);
+                __synonyms.put (synonym, canon);
             }
             
             con.close();
@@ -88,7 +93,7 @@ public class KeywordDAO
      */
     public String canonize (String synonym)
     {
-        return new String ();
+        return __synonyms.get (synonym);
     } 
 
     
@@ -101,8 +106,8 @@ public class KeywordDAO
     }
 
 
-    public Keyword getKeywordById ()
+    public Keyword getKeywordById (int id)
     {
-        return null;
+        return __keywords.get (id);
     }
 }

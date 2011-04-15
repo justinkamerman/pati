@@ -76,11 +76,10 @@ public class Indexer extends Thread
         // Load keywords
         log.info ("Loading keywords");
         List<Keyword> keywords = KeywordDAO.getInstance().getKeywords();
-        for (Keyword keyword : keywords)
-        {
-            log.info ("Loaded keyword " + keyword.toString());
-        }
-        
+
+
+        // Build state machine
+
 
         // Index documents
         log.info ("Indexer starting. Document batch size set to " + __docBatchSize);

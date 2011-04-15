@@ -48,7 +48,7 @@ public class Keyword {
     public String toString ()
     {
         StringBuffer sb = new StringBuffer ();
-        sb.append ("[canon=" + canon + "][synonyms=[");
+        sb.append ("[id=" + getId() + "][canon=" + canon + "][synonyms=[");
         for (String synonym : synonyms)
         {
             sb.append (synonym + ", ");
