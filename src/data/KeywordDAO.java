@@ -28,8 +28,8 @@ public class KeywordDAO
 
     // Cache: map keywordID=>keyword
     private HashMap<Integer, Keyword> __keywords = new HashMap<Integer, Keyword>();
-    // Cache: map synonym=>keyword
-    private HashMap<String, String> __synonyms = new HashMap<String, String>();
+    // Cache: map synonym=>keywordID
+    private HashMap<String, Integer> __synonyms = new HashMap<String, Integer>();
 
 
     private KeywordDAO ()
@@ -65,12 +65,12 @@ public class KeywordDAO
                 {
                     keyword = new Keyword (canon);
                     keyword.addSynonym (canon);  
-                    __synonyms.put (canon, canon);
+                    __synonyms.put (canon, keyword.getId());
                     __keywords.put (keyword.getId(), keyword);
                 }
 
                 keyword.addSynonym (synonym);
-                __synonyms.put (synonym, canon);
+                __synonyms.put (synonym, keyword.getId());
             }
             
             con.close();
@@ -87,14 +87,29 @@ public class KeywordDAO
         return __instance;
     }
 
-    
+
     /**
-     * Return the canonical form of a keyword
+     * Canonize a query string, returning a list of canon ids.
      */
-    public String canonize (String synonym)
+    public List<Integer> canonize (String query)
     {
-        return __synonyms.get (synonym);
-    } 
+        List<Integer> canonIds = new ArrayList<Integer>();
+        
+        if ( query != null )
+        {
+            String[] queryWords = query.split ("[: ,]");
+            for (int i = 0; i < queryWords.length; i++)
+            {
+                Integer canonId = __synonyms.get(queryWords[i]);
+                if (canonId != null)
+                {
+                canonIds.add (canonId);
+                }
+            }
+        }
+
+        return canonIds;
+    }
 
     
     /**

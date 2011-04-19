@@ -59,8 +59,8 @@ public class Indexer extends Thread
     
     private void execute (String[] args)
     {
-        __main = Thread.currentThread();
-        Runtime.getRuntime().addShutdownHook (this);
+        //__main = Thread.currentThread();
+        //Runtime.getRuntime().addShutdownHook (this);
         try
         {        
             __cl = (new BasicParser()).parse (__opt, args); 
@@ -76,13 +76,15 @@ public class Indexer extends Thread
         // Load keywords
         log.info ("Loading keywords");
         List<Keyword> keywords = KeywordDAO.getInstance().getKeywords();
-
+        
 
         // Build state machine
 
 
         // Index documents
         log.info ("Indexer starting. Document batch size set to " + __docBatchSize);
+        __main = Thread.currentThread();
+        Runtime.getRuntime().addShutdownHook (this);
         while ( ! shutdown() )
         {
             List<Document> documents = DocumentDAO.getInstance().getDocuments (__docBatchSize);
