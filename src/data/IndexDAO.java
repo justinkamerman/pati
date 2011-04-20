@@ -16,7 +16,7 @@ import snaq.db.ConnectionPoolManager;
  */
 public class IndexDAO {
 
-	private static Logger log = Logger.getLogger (DocumentDAO.class.getName());
+	private static Logger log = Logger.getLogger (IndexDAO.class.getName());
 	private static IndexDAO __instance = new IndexDAO ();
     private ConnectionPoolManager __cpm = null;
     private String __connectionPoolName = "mysql";
@@ -45,11 +45,13 @@ public class IndexDAO {
 	public  List<Integer> Find(List<Integer> QueryKeywordIds){
 		ArrayList<Integer> CommonDocIds=new ArrayList<Integer>();
 		//Building sql query 
-		String sqlquery= "SELECT DocumentId from Index where KeywordId in(";
-		for (int i=0;i<QueryKeywordIds.size();i++){
-			sqlquery=sqlquery+QueryKeywordIds.get(i)+",";
+		String sqlquery= "SELECT DocumentId from Indexx where KeywordId in (";
+		for (int i=0;i<QueryKeywordIds.size();i++)
+      {
+          if (i != 0) sqlquery += ",";
+          sqlquery= sqlquery + QueryKeywordIds.get(i);
 		}
-		sqlquery=sqlquery+");";
+		sqlquery=sqlquery+")";
 	
 		// end of building sql string query.
 		
@@ -68,7 +70,7 @@ public class IndexDAO {
         } 
         catch(SQLException ex) 
         {
-            log.severe ("Error retrieving Document IDs for given Keyword IDs");
+            log.severe ("Error retrieving Document IDs for given Keyword IDs: " + ex);
         } 
   	
 				
@@ -85,7 +87,7 @@ public class IndexDAO {
 		Vector<Integer> ExistingKeywordIds= getKeywordsList(DocumentId);// returns the list of keyword ids in Index table for given Document id.
 		
 		
-		String sqlquery= "INSERT INTO Index (DocumentId,KeywordId)VALUES";
+		String sqlquery= "INSERT INTO Indexx (DocumentId,KeywordId)VALUES";
 		
 		for (int i=0;i<keywordIdlist.size();i++){
 			if (!ExistingKeywordIds.contains(keywordIdlist.get(i))){
@@ -130,7 +132,7 @@ public class IndexDAO {
 	    try 
        {
            Connection con = __cpm.getConnection (__connectionPoolName);
-           PreparedStatement stmt = con.prepareStatement("Select KeywordId from Index where DocumentId=?;");
+           PreparedStatement stmt = con.prepareStatement("Select KeywordId from Indexx where DocumentId=?;");
            stmt.setInt (1, DocId);
            ResultSet rs = stmt.executeQuery ();
            while (rs.next()) 

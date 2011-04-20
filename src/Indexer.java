@@ -22,6 +22,7 @@ import data.Document;
 import data.DocumentDAO;
 import data.Keyword;
 import data.KeywordDAO;
+import data.IndexDAO;
 
 
 public class Indexer extends Thread
@@ -79,6 +80,14 @@ public class Indexer extends Thread
         
 
         // Build state machine
+
+
+        // Test IndexDAO
+        log.info ("Testing KeywordDAO...");
+        java.util.ArrayList<Integer> r=new java.util.ArrayList<Integer>();
+        r.add(1);
+        r.add(2);
+        log.info (IndexDAO.getInstance().Find(r).toString());
 
 
         // Index documents
