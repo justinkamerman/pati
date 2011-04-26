@@ -103,7 +103,7 @@ public class IndexDAO {
 		sqlquery=sqlquery+";";
 		// at the end "sqlquery" is of the form
 		//INSERT INTO test.Index (DocumentId,KeywordId)VALUES (7, 2),(7,3);
-		System.out.println(sqlquery);
+		//System.out.println(sqlquery);
 						 
 	    try 
         {
