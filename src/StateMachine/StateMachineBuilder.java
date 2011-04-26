@@ -1,5 +1,6 @@
 package StateMachine;
 
+import java.util.List;
 import java.util.Vector;
 
 import data.Keyword;
@@ -46,7 +47,7 @@ public class StateMachineBuilder {
 	}
 
 	//build the state machine and store it into the static attribute in StateMachineBuilder
-	public State createStateMachine(Vector<Keyword> keywords){
+	public static void createStateMachine(List<Keyword> keywords){
 			
 		State initialState = new State(0);
 		lastStateId=0;
@@ -108,13 +109,14 @@ public class StateMachineBuilder {
 			}
 		}
 				
-		return initialState;
+		 StateMachineBuilder.initialState = initialState;
 	}
 	
 	
 	//Enter one keyword into the state machine
-	public void enterKeyword(int keywordId, String keyword, State initialState){
+	public static void enterKeyword(int keywordId, String keyword, State initialState){
 		State state=initialState;
+		keyword=keyword.toLowerCase();
 		for (int i=0;i<keyword.length();i++){
 			//if the char doesn't belong to the goto transition
 			int nextStateIndex=state.getGoTo().belongsTo(keyword.charAt(i));
@@ -140,7 +142,7 @@ public class StateMachineBuilder {
 	
 	
 	/*debug function to print the graph of the state machine*/
-	public void printGraph(State initialState){
+	public static void printGraph(State initialState){
 		Vector<State> queue = new Vector<State>();
 		queue.add(initialState);
 		

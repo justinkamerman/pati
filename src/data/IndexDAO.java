@@ -41,7 +41,7 @@ public class IndexDAO {
         return __instance;
     }
 	
-	// This method if used to find list of document ids for given list of query keywords by looking in Index table in db
+	// This method is used to find list of document ids for given list of query keywords by looking in Index table in db
 	public  List<Integer> Find(List<Integer> QueryKeywordIds){
 		ArrayList<Integer> CommonDocIds=new ArrayList<Integer>();
 		//Building sql query 
@@ -85,20 +85,25 @@ public class IndexDAO {
 		int DocumentId=DeltaIndex.getDocumentId();
 		Vector<Integer>keywordIdlist=DeltaIndex.getKeywordList();// list of keyword ids to be added for given Document id.
 		Vector<Integer> ExistingKeywordIds= getKeywordsList(DocumentId);// returns the list of keyword ids in Index table for given Document id.
-		
-		
+		if (!keywordIdlist.isEmpty()){
 		String sqlquery= "INSERT INTO Indexx (DocumentId,KeywordId)VALUES";
-		
 		for (int i=0;i<keywordIdlist.size();i++){
 			if (!ExistingKeywordIds.contains(keywordIdlist.get(i))){
-			sqlquery=sqlquery+"("+DocumentId+ keywordIdlist.get(i)+")"+",";
-			}
+			
+				if (i!=keywordIdlist.size()-1){
+				sqlquery=sqlquery+"("+DocumentId+","+ keywordIdlist.get(i)+")"+",";
+				}else {
+					sqlquery=sqlquery+"("+DocumentId+","+ keywordIdlist.get(i)+")";
+				}
+				
+				
+				}
 			}
 		
 		sqlquery=sqlquery+";";
 		// at the end "sqlquery" is of the form
 		//INSERT INTO test.Index (DocumentId,KeywordId)VALUES (7, 2),(7,3);
-		
+		System.out.println(sqlquery);
 						 
 	    try 
         {
@@ -111,7 +116,7 @@ public class IndexDAO {
             log.severe ("Error in Updating Temporary Index");
         } 
 		
-		
+		}
 		
 	}
 	
@@ -159,7 +164,7 @@ public class IndexDAO {
 		// TODO Auto-generated method stub
     ArrayList<Integer> r=new ArrayList<Integer>();
     r.add(1);
-    r.add(2);
+    //r.add(2);
     System.out.println(getInstance().Find(r));
 	
 	

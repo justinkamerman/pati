@@ -13,16 +13,18 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+
+import StateMachine.Parser1;
+import StateMachine.StateMachineBuilder;
 import snaq.db.ConnectionPoolManager;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.Vector;
 
-import data.Document;
-import data.DocumentDAO;
-import data.Keyword;
-import data.KeywordDAO;
-import data.IndexDAO;
+import javax.swing.text.html.HTMLEditorKit.Parser;
+import data.*;
 
 
 public class Indexer extends Thread
@@ -77,37 +79,36 @@ public class Indexer extends Thread
         // Load keywords
         log.info ("Loading keywords");
         List<Keyword> keywords = KeywordDAO.getInstance().getKeywords();
-        
-
+               
         // Build state machine
 
-
-        // Test IndexDAO
-        log.info ("Testing KeywordDAO...");
-        java.util.ArrayList<Integer> r=new java.util.ArrayList<Integer>();
-        r.add(1);
-        r.add(2);
-        log.info (IndexDAO.getInstance().Find(r).toString());
-
-
+         StateMachineBuilder sm=new StateMachineBuilder();
+         sm.createStateMachine(keywords);
+        
+                
         // Index documents
         log.info ("Indexer starting. Document batch size set to " + __docBatchSize);
         __main = Thread.currentThread();
         Runtime.getRuntime().addShutdownHook (this);
         while ( ! shutdown() )
+        //while(true)
         {
             List<Document> documents = DocumentDAO.getInstance().getDocuments (__docBatchSize);
             log.info ("Retrieved " + documents.size() + " unprocessed documents.");
 
+           
             for (Document document : documents)
             {
-                log.info (document.toString());
+            	log.info (document.toString());
+            	// update indexx for a given document
+                IndexDAO.getInstance().UpdateIndex(Parser1.parse(document));
             }
 
             // Create index - just sleep for now
-            log.info ("Indexing documents");
+            //log.info ("Indexing documents");
             try
             {
+            	
                 Thread.currentThread().sleep (5000);
             }
             catch (InterruptedException ex)
