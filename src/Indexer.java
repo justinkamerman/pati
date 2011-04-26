@@ -79,9 +79,8 @@ public class Indexer extends Thread
         // Load keywords
         log.info ("Loading keywords");
         List<Keyword> keywords = KeywordDAO.getInstance().getKeywords();
-               
-        // Build state machine
 
+        // Build state machine
          StateMachineBuilder sm=new StateMachineBuilder();
          sm.createStateMachine(keywords);
         

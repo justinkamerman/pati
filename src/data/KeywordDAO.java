@@ -53,24 +53,21 @@ public class KeywordDAO
         {
             Connection con = __cpm.getConnection (__connectionPoolName);
             ResultSet rs = con.createStatement().executeQuery
-                ("SELECT canon, synonym FROM Keyword");
+                ("SELECT id, canon, synonyms FROM Keyword");
             
             while (rs.next()) 
             {
+                Integer id = rs.getInt ("id");
                 String canon = rs.getString("canon");
-                String synonym = rs.getString("synonym");
-                Keyword keyword = __keywords.get (canon.hashCode());
+                String synonyms = rs.getString("synonyms");
 
-                if (keyword == null)
+                Keyword keyword = new Keyword (id, canon, synonyms);
+                __keywords.put (keyword.getId(), keyword);
+
+                for (String synonym : keyword.getSynonyms ())
                 {
-                    keyword = new Keyword (canon);
-                    keyword.addSynonym (canon);  
-                    __synonyms.put (canon, keyword.getId());
-                    __keywords.put (keyword.getId(), keyword);
+                    __synonyms.put (synonym, keyword.getId());
                 }
-
-                keyword.addSynonym (synonym);
-                __synonyms.put (synonym, keyword.getId());
             }
             
             con.close();
@@ -101,9 +98,9 @@ public class KeywordDAO
             for (int i = 0; i < queryWords.length; i++)
             {
                 Integer canonId = __synonyms.get(queryWords[i]);
-                if (canonId != null)
+                if (canonId != null && ! canonIds.contains (canonId))
                 {
-                canonIds.add (canonId);
+                    canonIds.add (canonId);
                 }
             }
         }
