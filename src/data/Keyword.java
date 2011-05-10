@@ -31,7 +31,11 @@ public class Keyword {
         String[] tokens = synonyms.split (",");
         for (int i = 0; i < tokens.length; i++)
         {
-            this.synonyms.add (tokens[i].trim());
+            String synonym = tokens[i].trim();
+            if ( ! synonym.isEmpty() )
+            {
+                this.synonyms.add (synonym);
+            }
         }
     }
 	
