@@ -1,0 +1,48 @@
+<!--
+ $Id$ 
+
+ $LastChangedDate$ 
+ 
+ $LastChangedBy$
+-->
+<project name="doc" default="report" basedir=".">
+
+    <property name="report" value="report"/>
+
+    <!-- Macro definitions -->
+    <macrodef name="pdflatex">
+        <attribute name="file"/>
+        <sequential>
+            <exec executable="pdflatex" dir="${basedir}">
+                <arg value="--interaction"/>
+                <arg value="nonstopmode"/>
+                <arg value="@{file}"/>
+            </exec>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="bibtex">
+        <attribute name="file"/>
+        <sequential>
+            <exec executable="bibtex" dir="${basedir}">
+                <arg value="@{file}"/>
+            </exec>
+        </sequential>
+    </macrodef>
+
+    <!-- Targets -->
+    <target name="clean">
+        <delete file="${report}.log"/>
+        <delete file="${report}.aux"/>
+        <delete file="${report}.bbl"/>
+        <delete file="${report}.blg"/>
+    </target>
+
+
+    <target name="report">
+        <pdflatex file="${report}.tex"/>
+        <bibtex file="${report}"/>
+        <pdflatex file="${report}.tex"/>
+        <pdflatex file="${report}.tex"/>
+    </target>
+</project>
