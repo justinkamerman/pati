@@ -1,0 +1,9 @@
+This software makes use of the following thirdpart products:
+
+    * DBPool : Java Database Connection Pooling <http://www.snaq.net/>
+      Copyright (c) 2001-2010 Giles Winstanley. All Rights Reserved.
+    
+    * Apache Commons Logging and CLI libraries, both distributed under the
+      Apache License 2.0.
+
+    * MySQL JDBC driver, licensed under GPLv2.0.
