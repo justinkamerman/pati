@@ -32,10 +32,10 @@ quality of a particular algorithm or system and compare it to
 others. So often, information retrieval algorithms lack an analytical
 model that would allow one to make formal statements as to the
 performance boundaries of a particular system. In addition, as with
-machine learning and classification problems, using a scalar value to
-represent the performance of a system as a whole is misleading and
-does not account for the variety of operating conditions under which
-the system may be expected to perform. 
+machine learning and classification problems, using
+a scalar value to represent the performance of a system as a whole is
+misleading and does not account for the variety of operating
+conditions under which the system may be expected to perform.
 
 In measuring the performance of an information retrieval system, the
 following factors constitute a set of operating conditions which
@@ -99,15 +99,65 @@ reference implementation is conducted and the results analyzed.
 \section{Literature Review}
 \label{sec:literaturereview}
 
+\textbf{Evalauation}\\
+In the case of machine learning and classification systems, the
+specification of a particular set of misclassification costs or false
+and positive misclassification rates define a particular
+\textit{operating point} of the system. This concept applies equally
+to \textit{information retrieval} systems whereby it is misleading to
+represent the operating characteristics of a particular system by a
+single scalar metric.  Non-scalar evaluation methods try to
+characterize the performance of a system over a range of operating
+conditions. Although this makes direct performance comparisons
+ambiguous, we are more likely to be able to select the algorithm which
+will perform best in the real world by applying domain expertise to
+the results of a non-scalar evaluation \cite{RefWorks:32}.
 
 
-
-
-The Aho-Corasick string matching algorithm\cite{RefWorks:103} is a
-kind of dictionary matching search algorithm that constructs a finite
+\textbf{Aho-Corasick}\\
+In order to construct an \textit{inverted index}, documents must be
+scanned to determine \termit{term frequencies}. The Aho-Corasick
+string matching algorithm\cite{RefWorks:103} is a simple and efficient
+text scanning algorithm. The algorithm constructs a finite
 state machine to scan for a given set of keywords. It is, in effect, a
 reduced grammar regular expression parser described in
-\cite{RefWorks:111}. 
+\cite{RefWorks:111}. The algorithm is simple and efficient,
+construction time being proportional to the sum of the length of the
+keyword set, and the number of state trasitions required to scan a
+document is independent of the number of the size of the keyword
+set. 
+
+\textbf{Parallelization}\\
+Once an objective measure has been established, the performance of an
+information retrieval system can be improved iteratively by making
+various optimizations. These optimizations may take the form of
+algorithmic enhancements, implementation efficiencies, or
+parallelization. 
+
+Algorithmic enhancements usually represent the forefront of research
+in the field. Initial work to validate a new concept or algorithm is
+usaully performed in a very controlled environment and on relatively
+small document collections. As the field matures, improvements are
+harder fought and often involve increasingly complex algorithms
+and corpus approximation methods into which it becomes more difficult
+to \textit{fold-in} new documents. In addressing the considerable
+computation cost of re-calculating \textit{LSI} approximations,
+\cite{RefWorks:101} introduced new update methods which saw
+improved average precisions but were forced to conclude that the
+improvements were at a computational premium over previous methods.
+
+
+
+Enhancement of implementation efficiency in
+\cite{RefWorks:96} saw a six-fold timing improvment in \textit{LSI}
+searches on large document collections. The same study achieved nearly
+180 times improvement through the use of parallelization. The study
+made no algorithmic improvements and serves to re-inforce the fact that
+parallelization is an important mechanism employed by large commercial
+systems to cope with the ever increasing bodies of data that must be
+processed. 
+
+
 
 
 %----------------------------------------
