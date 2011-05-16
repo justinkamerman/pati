@@ -29,9 +29,9 @@
 Fundamental to the real-world application of \textit{Information
   Retrieval} techniques is the ability to objectively measure the
 quality of a particular algorithm or system and compare it to
-others. So often, information retrieval algorithms lack an analytical
+others. Often, information retrieval algorithms lack an analytical
 model that would allow one to make formal statements as to the
-performance boundaries of a particular system. In addition, as with
+performance characteristics of a particular system. In addition, as with
 machine learning and classification problems, using
 a scalar value to represent the performance of a system as a whole is
 misleading and does not account for the variety of operating
@@ -67,26 +67,24 @@ qualify the result:
 
     \item The storage requirements of the technique. How do the
       storage requirements evolve with the size of the collection
-      and/or degree of concurrency employed ?
+      and/or degree of concurrency ?
 \end{itemize}
 
 To drive information retrieval research in one direction or another,
-it would be useful to have at ones disposal a physical implementation
+it would be useful to have a physical implementation
 framework within which one could empirically explore the operating
-parameters of a particular algorithm and/or technique along the lines
+characteristics of a particular algorithm and/or technique along the lines
 described above. Such a system would allow researchers to investigate
 how the system responds to variation in any one of these operating
-parameters. Does the query speed increase as more computational
-capacity is added ? How do storage requirements vary with the size of
-the document collection ? The aim of this project is to create such an
+parameters. The aim of this project is to create such an
 information retrieval \textit{test-bed}.
 
 The initial reference implementation of this information retrieval
 test-bed is based on a simple \textit{inverted index} but has been
 architected such that the specific algorithm could easily be changed
-without major rework. This paper presents a survey of existing
+without significant rework. This paper presents a survey of existing
 literature in support of our test-bed concept, as well as the specific
-algorithmic techniques embodied in the reference implementation. In
+algorithms employed in the reference implementation. In
 addition, a detailed architectural overview of the system is
 presented, giving insight into how the system would be modified for
 alternative algorithms. Lastly, an evaluation of our inverted index
@@ -99,65 +97,112 @@ reference implementation is conducted and the results analyzed.
 \section{Literature Review}
 \label{sec:literaturereview}
 
-\textbf{Evalauation}\\
+
+\subsection{Indexing}
+\textit{Information Retrieval} is a fast becoming the dominant form of
+information access, overtaking traditional relational database style
+searching \cite{RefWorks:109}. The basis of most document retrieval
+systems is the \textit{term-document} incidence matrix. This matrix is
+typically sparse and more efficiently represented as an
+\textit{inverted-index} which maps terms to the parts of a document
+where they occur. 
+
+In order to construct an \textit{inverted index}, documents must be
+scanned to determine \termit{term frequencies}. The Aho-Corasick
+string matching algorithm\cite{RefWorks:103} is a simple and efficient
+text scanning algorithm. The algorithm constructs a finite
+state machine to scan for a given set of keywords. It is, in effect, a
+reduced grammar regular expression parser of the type described in
+\cite{RefWorks:111}. The algorithm is simple and efficient,
+construction time being proportional to the sum of the length of the
+keyword set, and the number of state transitions required to scan a
+document is independent of the number of the size of the keyword
+set. 
+
+
+\subsection{Evaluation}
 In the case of machine learning and classification systems, the
 specification of a particular set of misclassification costs or false
 and positive misclassification rates define a particular
-\textit{operating point} of the system. This concept applies equally
-to \textit{information retrieval} systems whereby it is misleading to
-represent the operating characteristics of a particular system by a
-single scalar metric.  Non-scalar evaluation methods try to
-characterize the performance of a system over a range of operating
+\textit{operating point} of the system.
+
+This concept applies equally to \textit{information retrieval} systems
+whereby it is misleading to represent the operating characteristics of
+a particular system with a scalar metric. In addition, the evaluation
+of information retrieval systems suffers from the the inherent
+subjectivity with respect to \textit{relevance}
+\cite{RefWorks:72}. Non-scalar evaluation methods try to characterize
+the performance of a system over a range of operating
 conditions. Although this makes direct performance comparisons
 ambiguous, we are more likely to be able to select the algorithm which
 will perform best in the real world by applying domain expertise to
 the results of a non-scalar evaluation \cite{RefWorks:32}.
 
 
-\textbf{Aho-Corasick}\\
-In order to construct an \textit{inverted index}, documents must be
-scanned to determine \termit{term frequencies}. The Aho-Corasick
-string matching algorithm\cite{RefWorks:103} is a simple and efficient
-text scanning algorithm. The algorithm constructs a finite
-state machine to scan for a given set of keywords. It is, in effect, a
-reduced grammar regular expression parser described in
-\cite{RefWorks:111}. The algorithm is simple and efficient,
-construction time being proportional to the sum of the length of the
-keyword set, and the number of state trasitions required to scan a
-document is independent of the number of the size of the keyword
-set. 
-
-\textbf{Parallelization}\\
+\subsection{Parallelization}
 Once an objective measure has been established, the performance of an
 information retrieval system can be improved iteratively by making
 various optimizations. These optimizations may take the form of
-algorithmic enhancements, implementation efficiencies, or
+algorithm enhancements, implementation efficiencies, or
 parallelization. 
 
-Algorithmic enhancements usually represent the forefront of research
-in the field. Initial work to validate a new concept or algorithm is
-usaully performed in a very controlled environment and on relatively
-small document collections. As the field matures, improvements are
-harder fought and often involve increasingly complex algorithms
-and corpus approximation methods into which it becomes more difficult
-to \textit{fold-in} new documents. In addressing the considerable
-computation cost of re-calculating \textit{LSI} approximations,
-\cite{RefWorks:101} introduced new update methods which saw
-improved average precisions but were forced to conclude that the
-improvements were at a computational premium over previous methods.
+Algorithm enhancements usually represent the forefront of research in
+the field. Work to validate a new concept or algorithm is usually
+performed in a very controlled environment and on relatively small
+document collections. As the field matures, improvements are harder
+fought and often involve increasingly complex algorithms and corpus
+approximation methods into which it becomes more difficult to
+\textit{fold-in} new documents. In addressing the considerable
+computation cost of re-calculating \textit{LSI} \cite{RefWorks:102}
+approximations, \cite{RefWorks:101} introduced new update methods
+which saw improved average precisions but were forced to conclude that
+the improvements were at a computational premium over previous
+methods. A semi-discrete matrix decomposition for LSI, \textit{SDD},
+performs as well as the original SVD-based LSI method for equal query
+times and uses less storage \cite{RefWorks:99}. The decomposition time
+of the mew method, however, is significantly larger than the original.
 
+Enhancement of implementation efficiency in \cite{RefWorks:96} saw a
+six-fold timing improvement in \textit{LSI} searches on large document
+collections. The same study achieved nearly 180 times improvement
+through the use of parallelization. The study made no algorithmic
+improvements and the result is consistent with increased use of
+parallelization by large commercial systems to cope with the ever
+increasing bodies of data that must be processed.
 
+\textit{Map-Reduce}, popularized by Google, is emerging as an
+important programming model for large-scale data-parallel applications
+such as web indexing \cite{RefWorks:113}. Fundamentally, Map-Reduce
+breaks up a computation into smaller tasks which are made to run in
+parallel on different physical machines. The \textit{map} and
+\textit{reduce} phases are inspired by the functions of the same name
+used in \textit{functional programming}. The model scales well to large
+clusters mostly because of the decoupled nature of the tasks
+themselves. An initial \textit{map} phase breaks the data into
+  separate chunks and assigns them to a task. The \textit{reduce}
+  phase assembles the results of the map tasks to produce the final
+  result.
 
-Enhancement of implementation efficiency in
-\cite{RefWorks:96} saw a six-fold timing improvment in \textit{LSI}
-searches on large document collections. The same study achieved nearly
-180 times improvement through the use of parallelization. The study
-made no algorithmic improvements and serves to re-inforce the fact that
-parallelization is an important mechanism employed by large commercial
-systems to cope with the ever increasing bodies of data that must be
-processed. 
-
-
+\textit{Hadoop} is an open source implementation of the MapReduce
+model, developed mostly by Yahoo, and now maintained by the Apache
+Software Foundation. Hadoop can be configured to automatically create
+speculative copies of slow running map tasks
+(stragglers). This facility is intended as a pre-emptive failure
+recovery mechanism as well as a means of optimizing overall
+throughput. The metrics used to identify stragglers as well as the
+algorithm for determining the target node on which speculative copies
+of a task should be launched, is examined in \cite{RefWorks:128}. The
+paper introduces an alternative scheduling algorithm, \textit{LATE},
+to address excessive task speculation issues with the native Hadoop
+scheduler in a heterogeneous hardware environment. Experiments
+comparing the native Hadoop scheduler, a non-speculative scheduling
+strategy, and LATE were conducted using hosted virtual machines (VMs)
+in the Amazon EC2 environment as well as a dedicated local
+cluster. Variance in node performance was introduced by varying the
+distribution of VMs across physical machines and also introducing
+network and disk transfer loads. Results show speculative execution
+(native Hadoop and LATE) outperforming non-speculative execution and
+LATE outperforming native Hadoop in most cases.
 
 
 %----------------------------------------
