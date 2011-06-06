@@ -215,23 +215,26 @@ LATE outperforming native Hadoop in most cases.
 
 The research design and methods section should include the following:
 
-    an overview of the experimental design
+\begin{itemize}
+    \item an overview of the experimental design
 
-    a detailed description of specific methods to be employed to accomplish the specific aims
+    \item a detailed description of specific methods to be employed to accomplish the specific aims
 
-    a detailed discussion of the way in which the results will be collected, analyzed, and interpreted
+    \item a detailed discussion of the way in which the results will be collected, analyzed, and interpreted
 
-    a projected sequence or timetable (work plan)
+    \item a projected sequence or timetable (work plan)
 
-    a description of any new methodology used and why it represents an improvement over the existing ones
+    \item a description of any new methodology used and why it represents an improvement over the existing ones
 
-    a discussion of potential difficulties and limitations and how these will be overcome or mitigated
+    \item a discussion of potential difficulties and limitations and how these will be overcome or mitigated
 
-    expected results, and alternative approaches that will be used if unexpected results are found
+    \item expected results, and alternative approaches that will be used if unexpected results are found
 
-    precautions to be exercised with respect to any procedures, situations, or materials that may be hazardous to personnel or human subjects
+    \item precautions to be exercised with respect to any procedures, situations, or materials that may be hazardous to personnel or human subjects
+\end{itemize}
 
-Suggestion
+
+Suggestion:
 
     Number the sections in this part of the application to correspond to the numbers of the Specific Aims.
 
@@ -247,30 +250,6 @@ Suggestion
 
     Document proposed collaborations and offers of materials or reagents of restricted availability with letters from the individuals involved.
 
-\bigskip
-The whole idea of the project belongs in being able to reduce the time
-to build the index. As our system is building the inverted index by
-parsing all the post into the state machine, we can expect that the
-complexity will be proportional to the whole number of characters of
-all the post we want to build the index for. As a result changing the
-number of Posts, the number of characters inside of each post should
-have a big impact in our time complexity. Besides, we should also have
-a time needed at the very beginning of the running to build the state
-machine. We can expect that the building of the state machine needs a
-time proportional to the sum of the size of the keywords.
-
-The system proposed in this paper doesn’t take care of various
-compression techniques for storing the index. To do that, many
-techniques have been explored in the literature. We will just
-highlight the different sizes of our indexes according to different
-parameters.
-
-Finally we will do a time comparison between our way of building the
-inverted index and the naive way.  All the time complexities tests are
-done on a single computer and it is important to understand that all
-these processes can be parallelized. A future work would be to install
-the system on multiple computers and explore the gain in time by
-running the code simultaneously on these computers.
 
 
 %----------------------------------------
@@ -688,9 +667,38 @@ implementation of the \texttt{Parser}.
 %----------------------------------------
 \section{Experiment Results}
 \label{sec:experimentresults}
-FIX: All tests were run on a Dell laptop with an Intel Core Duo 2GHz
+The whole idea of the project belongs in being able to reduce the time
+to build the index. As our system is building the inverted index by
+parsing all the post into the state machine, we can expect that the
+complexity will be proportional to the whole number of characters of
+all the post we want to build the index for. As a result changing the
+number of Posts, the number of characters inside of each post should
+have a big impact in our time complexity. Besides, we should also have
+a time needed at the very beginning of the running to build the state
+machine. We can expect that the building of the state machine needs a
+time proportional to the sum of the size of the keywords.
+
+The system proposed in this paper doesn’t take care of various
+compression techniques for storing the index. To do that, many
+techniques have been explored in the literature. We will just
+highlight the different sizes of our indexes according to different
+parameters.
+
+Finally we will do a time comparison between our way of building the
+inverted index and the naive way.  All the time complexities tests are
+done on a single computer and it is important to understand that all
+these processes can be parallelized. A future work would be to install
+the system on multiple computers and explore the gain in time by
+running the code simultaneously on these computers.
+
+
+All tests were run on a single Intel Core 2 Duo 2GHz
 processor, 1GB RAM, running a 32 bit Linux 2.6.37 kernel. The Java
-Virtual Machine used was version 1.6.0-24.....
+Virtual Machine used was version 1.6.0-24. The database used was MySQL
+x.x, running on ....
+
+
+
 
 %----------------------------------------
 % Number of Keywords
@@ -908,7 +916,7 @@ once in the database. This relationship is shown in figure
 %----------------------------------------
 % Comparison with Naive Index Builder
 %----------------------------------------
-\subsection{Comparison with Na\"{a}ve Index Builder}
+\subsection{Comparison with Na\"{i}ve Index Builder}
 This part focuses on the improvement that our system with respect to
 time complexity in comparison with a na\"{i}e index builder. The na\"{i}ve
 indexer builder has the same input as our system i.e. a list of
@@ -933,31 +941,162 @@ index corresponding to the keywords and documents. Algorithm
 \end{algorithm}
 
 As we can see this algorithm has a complexity that directly depends on
-the number of keywords n, the number of document m and the length of
-document since we have to check in each document for each
-keyword. Moreover, we decided to limit as much as possible the
+the number of keywords $n$, the number of document $m$, and the length
+of document since we have to check in each document for each
+keyword. Moreover, we decided to limit, as much as possible, the
 accesses to the database since it is really time consuming in
 Java. That’s why we do one access to the database for each keywords
-and not for each document. 
-
-Note: In the state machine we do as much accesses to the database as
-the number of document (in the worst case meaning we find at least one
-keyword per document). 
-
-Let’s compare the results for this algorithm with our system results
-for different number of keywords and posts. 
+and not for each document. In the state machine we do as much accesses
+to the database as the number of document (in the worst case meaning
+we find at least one keyword per document). In the following
+subsections we compare the results for this algorithm with our system
+results for different number of keywords and posts.
 
 
-\subsubsection{Analytical}
+\subsubsection{Complexity Analysis}
+For the na\"{i}ve algorithm described above, the theoretical worst
+case time complexity relationship is shown in equation
+\ref{eqn:timecomplexworstcase}.  
+
+\begin{equation}
+\label{eqn:timecomplexworstcase}
+Time \propto keyNum * ( docNum * maxLength + conn)
+\end{equation}
+
+where \(keyNum\) is the number of keywords, \(docNum\) is the number
+of documents, \(maxLength\) is the maximum document length, and
+\(conn\) is the time taken to create a connection to the database. For
+the state machine algorithm the theoretical complexity relationship is
+given by 
+equation \ref{eqn:timecomplexsm}.
+
+\begin{equation}
+\label{eqn:timecomplexsm}
+Time \propto docNum * ( maxLength + conn)
+\end{equation}
 
 
-\subsubsection{Experimental}
+\subsubsection{Document Size}
+For this experiment we fixed the number of keywords to 1,000 and the
+number of documents to 5,000 and we ran our code on a database
+composed of document of different length. The experiment results are
+shown in figure \ref{fig:naivedocumentsize}.
+
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=\textwidth,height=!]{naivedocumentsize}
+  \end{center}
+  \caption{Time to build an inverted index as a function of the
+      average document size. Time taken is shown in miliseconds on the
+      y-axis and the average document size in characters on the x-axis}
+  \label{fig:naivedocumentsize}
+\end{figure} 
 
 
+As expected, the curves for both our indexer and the naive indexer are
+almost linear since for the naive implementation:
+
+\[Time \propto (keyNum * docNum) * maxLength + conn * keyNum\]
+
+and for our Aho-Corasick state machine method: 
+
+\[Time \propto docNum * maxLength + conn * docNum\]
+
+We can observe that for a small length of document naive method is
+faster since \(keyNum\) is smaller than \(docNum\). For \(docLength = 1300\)
+our indexer is far more efficient. To see this effect more clearly,
+experiment results are plotted on a logarithmic scale in figure
+\ref{fig:naivedocumentsizelog}.
+
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=\textwidth,height=!]{naivedocumentsizelog}
+  \end{center}
+  \caption{Time to build an inverted index as a function of the
+      average document size. Time taken is shown in miliseconds on the
+      y-axis and the average document size in characters on the
+      logarithmic x-axis}
+  \label{fig:naivedocumentsizelog}
+\end{figure} 
 
 
+\subsubsection{Number of Keywords}
+As expected, the two implementations exhibit a linear response to the
+number of keywords used. In the na\"{i}ve implmementation:
+
+\[Time \propto (keyNum * maxLength) * docNum + conn * keyNum\]
+
+and in our Aho-Corasick state machine method: 
+
+\[Time \propto (maxLength + conn) * docNum \]
+
+However, we would have expected the state machine method not to depend
+on the number of keyword. The reason why it’s not the case is because
+when we don’t have any keywords in a document, we don’t access the
+database. Knowing that the database access is very time consuming,
+increasing the number of keyword increases the probability of finding a
+keyword into each document and so increase the time complexity.  
+
+The experiment results are shown in figure \ref{fig:naivedocumentsize}
+and on a logarithmic scale in figure \ref{fig:naivedocumentsizelog}.
+
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=\textwidth,height=!]{naivenumkeywords}
+  \end{center}
+  \caption{Time to build an inverted index as a function of the
+      number of keywords. Time taken is shown in miliseconds on the
+      y-axis and the number of keywords on the x-axis}
+  \label{fig:naivenumkeywords}
+\end{figure} 
 
 
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=\textwidth,height=!]{naivenumkeywordslog}
+  \end{center}
+  \caption{Time to build an inverted index as a function of the
+      number of keywords. Time taken is shown in miliseconds on the
+      y-axis and the number of keywords on the logarithmic x-axis}
+  \label{fig:naivenumkeywordslog}
+\end{figure} 
+
+
+\subsubsection{Size of Corpus}
+As expected, the time complexity is linearly related to the number of
+documents being indexed. The experiment results are shown in figure
+\ref{fig:naivesizecorpus} and on a logarithmic scale in figure
+\ref{fig:naivesizecorpuslog}. For the na\"{i}ve implementation:
+
+\[Time \propto (docNum * maxLenght + conn) * keyNum\]
+ 
+and in our Aho-Corasick state machine method: 
+
+\[Time \propto docNum * maxLenght + conn * docNum\]
+
+
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=\textwidth,height=!]{naivesizecorpus}
+  \end{center}
+  \caption{Time to build an inverted index as a function of the
+      number of documents being indexed. Time taken is shown in
+      miliseconds on the y-axis and the number of documents on the
+      x-axis} 
+  \label{fig:naivesizecorpus}
+\end{figure} 
+
+
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=\textwidth,height=!]{naivesizecorpuslog}
+  \end{center}
+  \caption{Time to build an inverted index as a function of the
+      number of documents being indexed. Time taken is shown in
+      miliseconds on the y-axis and the number of documents on the
+      logarithmic x-axis} 
+  \label{fig:naivesizecorpuslog}
+\end{figure} 
 
 
 %----------------------------------------
@@ -965,20 +1104,35 @@ for different number of keywords and posts.
 %----------------------------------------
 \section{Conclusions}
 \label{sec:conclusions}
-
 The experimental results tend to prove what we could expect from
-theory. Our system is faster than the naive indexer whatever
-parameters we are changing. In particular when the number of document
-is becoming really important, the State machine approach prove to be
-very efficient. Moreover, as soon as we are dealing with a number of
-keywords that can be representative of industrial needs, the state
-machine prove also to be far faster than the naive indexer.
+theory. Our system is faster than the na\"{i}ve indexer with respect
+to the number of keywords being indexed, size of the document
+collection, and average document size. In particular, our indexer
+implementation performs relatively well with respect to the number of
+documents being indexed. Moreover, as soon as we are dealing with a number of
+keywords that can be representative of real-world needs, the state
+machine implementation proves also to be significantly faster than the
+naive indexer. 
 
-Future work on this strategy would be to compare this approach with
-less naive strategies to build an index. Moreover, as said in the
-introduction, it would probably be interesting to add compression
-methods to our algorithm in order to reduce the index size in the
-database.
+One of the primary goals of this research project was to leverage the
+effect of parallelization in reducing the time to index a document
+collection. Due to time constraints, this was not done but the
+resulting implementation lays a strong foundation for further research
+in this area. Other avenues of interest include, but are not limited
+to:
+
+\begin{itemize}
+  \item Compare the Aho-Corasick state machine indexer implementation
+    to less na\"{i}ve indexer implementations.
+    
+    \item Use compression techniques to our algorithm in order to
+      reduce the index size in the database.
+
+    \item Study the time performance improvements possible deploying
+      the Aho-Corasick state machine indexer within a commercial
+      \textit{MapReduce} framework such as \textit{Hadoop}.
+\end{itemize}
+
 
 
 %----------------------------------------
