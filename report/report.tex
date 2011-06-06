@@ -8,13 +8,15 @@
 
 \documentclass[10pt]{report}
 \usepackage{graphicx}
-\usepackage{setspace}			
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{setspace}                   
 \onehalfspacing
 % numbering down to subsubsection
 \setcounter{secnumdepth}{3}
 
 \title{CS6999 Web Data and Text Mining:\\Parallel Text Indexer Project Report}
-\author{Damien DuBios\\Justin Kamerman 3335272\\Raman Singh}
+\author{Damien DuBois\\Justin Kamerman 3335272\\Ramanpreet Singh 3395913}
 \date{\today}
 
 \begin{document}
@@ -206,24 +208,76 @@ LATE outperforming native Hadoop in most cases.
 
 
 %----------------------------------------
-% Motivation
-%----------------------------------------
-\section{Motivation}
-\label{sec:motivation}
-
-
-%----------------------------------------
 % Research Plan
 %----------------------------------------
 \section{Research Plan}
 \label{sec:researchplan}
 
+The research design and methods section should include the following:
+
+    an overview of the experimental design
+
+    a detailed description of specific methods to be employed to accomplish the specific aims
+
+    a detailed discussion of the way in which the results will be collected, analyzed, and interpreted
+
+    a projected sequence or timetable (work plan)
+
+    a description of any new methodology used and why it represents an improvement over the existing ones
+
+    a discussion of potential difficulties and limitations and how these will be overcome or mitigated
+
+    expected results, and alternative approaches that will be used if unexpected results are found
+
+    precautions to be exercised with respect to any procedures, situations, or materials that may be hazardous to personnel or human subjects
+
+Suggestion
+
+    Number the sections in this part of the application to correspond to the numbers of the Specific Aims.
+
+    Give sufficient detail. Do not assume that the reviewers will know how you intend to proceed.
+
+    Avoid excessive experimental detail by referring to publications that describe the methods to be employed.
+
+    Publications cited should be by the applicants, if at all possible. Citing someone else's publication establishes that you know what method to use, but citing your own (or that of a collaborator) establishes that the applicant personnel are experienced with the necessary techniques.
+
+    If relevant, explain why one approach or method will be used in preference to others. This establishes that the alternatives were not simply overlooked. Give not only the "how" but the "why."
+
+    If employing a complex technology for the fast time, take extra care to demonstrate familiarity with the experimental details and potential pitfalls. Add a coinvestigator or consultant experienced with the technology, if necessary.
+
+    Document proposed collaborations and offers of materials or reagents of restricted availability with letters from the individuals involved.
+
+\bigskip
+The whole idea of the project belongs in being able to reduce the time
+to build the index. As our system is building the inverted index by
+parsing all the post into the state machine, we can expect that the
+complexity will be proportional to the whole number of characters of
+all the post we want to build the index for. As a result changing the
+number of Posts, the number of characters inside of each post should
+have a big impact in our time complexity. Besides, we should also have
+a time needed at the very beginning of the running to build the state
+machine. We can expect that the building of the state machine needs a
+time proportional to the sum of the size of the keywords.
+
+The system proposed in this paper doesn’t take care of various
+compression techniques for storing the index. To do that, many
+techniques have been explored in the literature. We will just
+highlight the different sizes of our indexes according to different
+parameters.
+
+Finally we will do a time comparison between our way of building the
+inverted index and the naive way.  All the time complexities tests are
+done on a single computer and it is important to understand that all
+these processes can be parallelized. A future work would be to install
+the system on multiple computers and explore the gain in time by
+running the code simultaneously on these computers.
+
 
 %----------------------------------------
-% Design Component
+% Design
 %----------------------------------------
-\section{Design Component}
-\label{sec:designcomponent}
+\section{Design}
+\label{sec:design}
 A black-box functional view of the indexing system is show in figure
 \ref{fig:blackbox}. The system processes a continuous incoming flow of
 documents and distribute them to parallel indexing threads running on
@@ -271,7 +325,7 @@ search query wold be as follows:
 
 \begin{figure}
   \begin{center}
-	\includegraphics[width=\textwidth,height=!]{blackbox}
+        \includegraphics[width=\textwidth,height=!]{blackbox}
   \end{center}
   \caption{A black-box view of the indexer}
   \label{fig:blackbox}
@@ -280,7 +334,7 @@ search query wold be as follows:
 
 \begin{figure}
   \begin{center}
-	\includegraphics[width=\textwidth,height=!]{deploymentmodel}
+        \includegraphics[width=\textwidth,height=!]{deploymentmodel}
   \end{center}
   \caption{Indexer deployment model}
   \label{fig:deploymentmodel}
@@ -308,7 +362,7 @@ these layers is described in more detail in section
 
 \begin{figure}
   \begin{center}
-	\includegraphics[width=\textwidth,height=!]{overallclassdiagram}
+        \includegraphics[width=\textwidth,height=!]{overallclassdiagram}
   \end{center}
   \caption{Overall UML class diagram design}
   \label{fig:overallclassdiagram}
@@ -316,7 +370,7 @@ these layers is described in more detail in section
 
 \begin{figure}
   \begin{center}
-	\includegraphics[width=\textwidth,height=!]{overallsequencediagram}
+        \includegraphics[width=\textwidth,height=!]{overallsequencediagram}
   \end{center}
   \caption{Overall UML sequence diagram design}
   \label{fig:overallsequencediagram}
@@ -361,7 +415,7 @@ to large document collections, a more efficient mechanism would be
 required in this respect.
 
 The following subsections detail the implementation of the
-architectural layers identified in section \ref{sec:designcomponent}.
+architectural layers identified in section \ref{sec:design}.
 
 % Data Access Layer
 \subsection{Data Access Layer}
@@ -411,7 +465,7 @@ implementation of the Document data access layer.
 
 \begin{figure}
   \begin{center}
-	\includegraphics[width=\textwidth,height=!]{documentclassdiagram}
+        \includegraphics[width=\textwidth,height=!]{documentclassdiagram}
   \end{center}
   \caption{Document class diagram}
   \label{fig:documentclassdiagram}
@@ -419,7 +473,7 @@ implementation of the Document data access layer.
 
 \begin{figure}
   \begin{center}
-	\includegraphics[width=\textwidth,height=!]{documentsequencediagram}
+        \includegraphics[width=\textwidth,height=!]{documentsequencediagram}
   \end{center}
   \caption{Document sequence diagram}
   \label{fig:documentsequencediagram}
@@ -455,7 +509,7 @@ implementation of the Keyword data access layer.
 
 \begin{figure}
   \begin{center}
-	\includegraphics[width=\textwidth,height=!]{keywordclassdiagram}
+        \includegraphics[width=\textwidth,height=!]{keywordclassdiagram}
   \end{center}
   \caption{Keyword class diagram}
   \label{fig:keywordclassdiagram}
@@ -463,7 +517,7 @@ implementation of the Keyword data access layer.
 
 \begin{figure}
   \begin{center}
-	\includegraphics[width=\textwidth,height=!]{keywordsequencediagram}
+        \includegraphics[width=\textwidth,height=!]{keywordsequencediagram}
   \end{center}
   \caption{Keyword sequence diagram}
   \label{fig:keywordsequencediagram}
@@ -497,7 +551,7 @@ two methods defined in this class:
 
 \begin{figure}
   \begin{center}
-	\includegraphics[width=\textwidth,height=!]{indexclassdiagram}
+        \includegraphics[width=\textwidth,height=!]{indexclassdiagram}
   \end{center}
   \caption{Index class diagram}
   \label{fig:indexclassdiagram}
@@ -505,7 +559,7 @@ two methods defined in this class:
 
 \begin{figure}
   \begin{center}
-	\includegraphics[width=\textwidth,height=!]{indexsequencediagram}
+        \includegraphics[width=\textwidth,height=!]{indexsequencediagram}
   \end{center}
   \caption{Index sequence diagram}
   \label{fig:indexsequencediagram}
@@ -548,7 +602,7 @@ implementation of the \texttt{Searcher} class.
 
 \begin{figure}
   \begin{center}
-	\includegraphics[width=\textwidth,height=!]{searcherclassdiagram}
+        \includegraphics[width=\textwidth,height=!]{searcherclassdiagram}
   \end{center}
   \caption{Searcher class diagram}
   \label{fig:searcherclassdiagram}
@@ -556,7 +610,7 @@ implementation of the \texttt{Searcher} class.
 
 \begin{figure}
   \begin{center}
-	\includegraphics[width=\textwidth,height=!]{searchersequencediagram}
+        \includegraphics[width=\textwidth,height=!]{searchersequencediagram}
   \end{center}
   \caption{Searcher sequence diagram}
   \label{fig:searchersequencediagram}
@@ -581,7 +635,7 @@ implementation of the \texttt{StateMachineBuilder}.
 
 \begin{figure}
   \begin{center}
-	\includegraphics[width=\textwidth,height=!]{statemachineclassdiagram}
+        \includegraphics[width=\textwidth,height=!]{statemachineclassdiagram}
   \end{center}
   \caption{State machine class diagram}
   \label{fig:statemachineclassdiagram}
@@ -589,7 +643,7 @@ implementation of the \texttt{StateMachineBuilder}.
 
 \begin{figure}
   \begin{center}
-	\includegraphics[width=\textwidth,height=!]{statemachinesequencediagram}
+        \includegraphics[width=\textwidth,height=!]{statemachinesequencediagram}
   \end{center}
   \caption{State machine sequence diagram}
   \label{fig:statemachinesequencediagram}
@@ -614,7 +668,7 @@ implementation of the \texttt{Parser}.
 
 \begin{figure}
   \begin{center}
-	\includegraphics[width=\textwidth,height=!]{parserclassdiagram}
+        \includegraphics[width=\textwidth,height=!]{parserclassdiagram}
   \end{center}
   \caption{Parser class diagram}
   \label{fig:parserclassdiagram}
@@ -622,7 +676,7 @@ implementation of the \texttt{Parser}.
 
 \begin{figure}
   \begin{center}
-	\includegraphics[width=\textwidth,height=!]{parsersequencediagram}
+        \includegraphics[width=\textwidth,height=!]{parsersequencediagram}
   \end{center}
   \caption{Parser sequence diagram}
   \label{fig:parsersequencediagram}
@@ -638,6 +692,273 @@ FIX: All tests were run on a Dell laptop with an Intel Core Duo 2GHz
 processor, 1GB RAM, running a 32 bit Linux 2.6.37 kernel. The Java
 Virtual Machine used was version 1.6.0-24.....
 
+%----------------------------------------
+% Number of Keywords
+%----------------------------------------
+\subsection{Number of Keywords}
+To be able to study the impact of different number of keywords, we
+built a keywords database with 10.000 most popular English
+words. These 10.000 words come from:
+http://www.mit.edu/~ecprice/wordlist.10000 All the experiments in this
+part are done with 50.000 posts randomly downloaded from internet. The
+idea is to get some heterogeneous length and type of post such that it
+is realistic.  The experiment shown here consist on building the index
+for different number of keywords from the 10.000 keywords database and
+explore the time and space complexity for the building of the state
+machine and the building of the index once the state machine is built.
+
+
+\subsubsection{Time Complexity}
+\begin{itemize}
+\item \textbf{State Machine Construction:}
+  The time taken to construct the Aho-Corasick state machine was
+  measured for different numbers of keywords. The results of this test
+  is shown in figure \ref{fig:numkeywordstimecomplexbuildsm} and construction time
+  can easily be considered linear with respect to the number of
+  keywords. This is consistent with \cite{RefWorks:103} which proves
+  that the state machine construction algorithm is linearly
+  proportional to the sum of the lengths of the keywords used to
+  construct the state machine.
+
+  \begin{figure}
+    \begin{center}
+      \includegraphics[width=\textwidth,height=!]{numkeywordstimecomplexbuildsm}
+    \end{center}
+    \caption{Time to build Aho-Corasick state machine as a function of
+      the number of keywords. Time taken is shown in miliseconds on the
+      y-axis and the number of keywords on the x-axis}
+    \label{fig:numkeywordstimecomplexbuildsm}
+  \end{figure} 
+  
+\item \textbf{Index Construction:} 
+  The time taken for a state machines to build an inverted index of our
+  corpus was measured. The test was repeated using state machines
+  constructed with a varying number of keywords and the results plotted
+  in figure \ref{fig:numkeywordstimecomplexbuildindex}. According to
+  \cite{RefWorks:103} which proves that the number of state transitions
+  involved in processing an input string is independent of the number of
+  keywords used to construct the state machine, we would not expect the
+  time complexity to increase with the size of the keyword set. However,
+  as can be seen in \ref{fig:numkeywordstimecomplexbuildindex}, the time
+  to build the index increases logarithmically with the number of
+  keywords. This is likely due to the fac that as the number of keywords
+  increases, so does the size of the index and the number of database
+  interacts required to store and update the index.
+
+  \begin{figure}
+    \begin{center}
+      \includegraphics[width=\textwidth,height=!]{numkeywordstimecomplexbuildindex}
+    \end{center}
+    \caption{Time to build the inverted index as a function of the
+      number of keywords. Time taken is shown in miliseconds on the
+      y-axis and the number of keywords on the x-axis}
+    \label{fig:numkeywordstimecomplexbuildindex}
+  \end{figure} 
+
+\end{itemize}
+
+
+\subsubsection{Space Complexity}
+As we would have expected it, the space used by the index in the
+database is proportional to the number of words we are using. It also
+means that our words have the same probability at the beginning or at
+the end of our 12,000 words dictionnary. This result is reflected in
+figure \ref{fig:numkeywordsspacecomplexbuildindex}.
+
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=\textwidth,height=!]{numkeywordsspacecomplexbuildindex}
+  \end{center}
+    \caption{Size of index as a function of the number of
+      keywords. The number of database rows used to store the index is
+      shown on the y-axis and the number of keywords on the x-axis} 
+    \label{fig:numkeywordsspacecomplexbuildindex}
+\end{figure} 
+
+
+%----------------------------------------
+% Size of Corpus
+%----------------------------------------
+\subsection{Size of Corpus}
+To be able to study the impact of different number of Posts, we built
+a posts database with 400.000 posts randomly downloaded from
+internet. Then the keywords used to build the index are simply the
+first 5.000 from the previous keywords database. 
+
+The experiment shown here consist on building the index for different
+number of Posts and explore the time and space complexity for the
+building of the state machine and the building of the index once the
+state machine is built. We can expect that the time to build the State
+machine won’t change with the number of posts and the time to build
+the index will increase almost linearly with the number of posts.  
+
+
+\subsubsection{Time Complexity}
+As we were expecting, the time to build the index with the state
+machine strategy is linear with respect to the number of post, as
+depicted in figure \ref{fig:corpsizetimecomplexbuildindex}. However, to be able
+to perform this experiment we had to run the indexer program with
+batches of  10,000 posts due to Java heap space problems. As a result, the state
+machine is rebuilt every 10,000 posts.  
+
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=\textwidth,height=!]{corpsizetimecomplexbuildindex}
+  \end{center}
+    \caption{Time to build the inverted index as a function of the
+      size of the corpus. Time taken is shown in miliseconds on the
+      y-axis and the number of documents in the collection on the
+      x-axis} 
+    \label{fig:corpsizetimecomplexbuildindex}
+\end{figure} 
+
+
+\subsubsection{Space Complexity}
+As expected, the space used to sptore the index in the database is
+proportional to the size of the corpus. This result is shown in figure
+\ref{fig:corpsizespacecomplexbuildindex}.
+
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=\textwidth,height=!]{corpsizespacecomplexbuildindex}
+  \end{center}
+    \caption{Size of index as a function of the size of the
+      corpus. The number of database rows used to store the index is
+      shown on the y-axis and the number of documents in the
+      collection on the x-axis} 
+    \label{fig:corpsizespacecomplexbuildindex}
+\end{figure}
+
+
+%----------------------------------------
+% Document Size
+%----------------------------------------
+\subsection{Document Size} 
+As we have seen before, the time to build the index is almost
+proportional with the number of post. Theoretically this time should
+be proportional to the total length of all posts. Let’s focus on this
+aspect and study the impact of the length of the post on the time to
+build the state machine. To do that we built a 5.000 posts database
+with posts that are all composed of 20.000 characters. Then, we ran
+our system on different length of substring of these posts.  
+
+
+\subsubsection{Time Complexity}
+\begin{itemize}
+\item \textbf{State Machine Construction:} 
+  As expected, state machine construction time
+  does not depend on the length of the documents. Nonetheless it is
+  interesting to compare figures \ref{fig:docsizetimecomplexbuildsm}
+  and \ref{fig:docsizetimecomplexbuildindex}, showing the construction
+  times for the state machine and inverted index relative to the
+  average document size. The comparison shows that state machine
+  construction time is several orders of magnitude smaller than index
+  construction and negligible by comnparison. Our state machine is
+  built in 770 ms on average for 1000 keywords with a standard
+  deviation of 18ms. 
+
+  \begin{figure}
+    \begin{center}
+      \includegraphics[width=\textwidth,height=!]{docsizetimecomplexbuildsm}
+    \end{center}
+    \caption{Time to build Aho-Corasick state machine as a function of
+      the average document size. Time taken is shown in miliseconds on the
+      y-axis and the average document size in characters on the x-axis}
+    \label{fig:docsizetimecomplexbuildsm}
+  \end{figure} 
+
+\item \textbf{Index Construction:} 
+  As expected the time to build the indexer is almost linear with
+  respect to the average document size. This relationship is shown in
+  figure \ref{fig:docsizetimecomplexbuildindex}.
+
+  \begin{figure}
+    \begin{center}
+      \includegraphics[width=\textwidth,height=!]{docsizetimecomplexbuildindex}
+    \end{center}
+    \caption{Time to build an inverted index as a function of the
+      average document size. Time taken is shown in miliseconds on the
+      y-axis and the average document size in characters on the x-axis} 
+    \label{fig:docsizetimecomplexbuildindex}
+  \end{figure} 
+
+\end{itemize}
+
+
+\subsubsection{Space Complexity}
+Here we are studying the number of records in our index database as a
+function of the average document size. As expected, the larger the documents
+the more records created to represent the index. However, this is not linear
+since if a word occurs many times in the same post we just save it
+once in the database. This relationship is shown in figure
+\ref{fig:docsizespacecomplexbuildindex}. 
+
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=\textwidth,height=!]{docsizespacecomplexbuildindex}
+  \end{center}
+  \caption{Size of index as a function of the average document
+    size. The number of database rows used to store the index is
+      shown on the y-axis and the average document size in characters
+      on the x-axis}  
+  \label{fig:docsizespacecomplexbuildindex}
+\end{figure} 
+
+
+%----------------------------------------
+% Comparison with Naive Index Builder
+%----------------------------------------
+\subsection{Comparison with Na\"{a}ve Index Builder}
+This part focuses on the improvement that our system with respect to
+time complexity in comparison with a na\"{i}e index builder. The na\"{i}ve
+indexer builder has the same input as our system i.e. a list of
+keywords and a list of documents, and the same output i.e. an inverted
+index corresponding to the keywords and documents. Algorithm
+\ref{alg:invertedindex} is used in principal for both implementations.
+
+
+\begin{algorithm}
+\caption{Build inverted index}
+\label{alg:invertedindex}
+\begin{algorithmic}
+  \FORALL{$keyword$}
+  \STATE Build a vector $v$
+  \FORALL {$document$}
+  \IF {$keyword$ \epsilon \; $document$}
+  \STATE Add the row (keyword.id, document.id) into $v$
+  \ENDFOR
+  \STATE Save $v$ into the database
+  \ENDFOR
+\end{algorithmic}
+\end{algorithm}
+
+As we can see this algorithm has a complexity that directly depends on
+the number of keywords n, the number of document m and the length of
+document since we have to check in each document for each
+keyword. Moreover, we decided to limit as much as possible the
+accesses to the database since it is really time consuming in
+Java. That’s why we do one access to the database for each keywords
+and not for each document. 
+
+Note: In the state machine we do as much accesses to the database as
+the number of document (in the worst case meaning we find at least one
+keyword per document). 
+
+Let’s compare the results for this algorithm with our system results
+for different number of keywords and posts. 
+
+
+\subsubsection{Analytical}
+
+
+\subsubsection{Experimental}
+
+
+
+
+
+
+
 
 %----------------------------------------
 % Conclusions
@@ -645,11 +966,25 @@ Virtual Machine used was version 1.6.0-24.....
 \section{Conclusions}
 \label{sec:conclusions}
 
+The experimental results tend to prove what we could expect from
+theory. Our system is faster than the naive indexer whatever
+parameters we are changing. In particular when the number of document
+is becoming really important, the State machine approach prove to be
+very efficient. Moreover, as soon as we are dealing with a number of
+keywords that can be representative of industrial needs, the state
+machine prove also to be far faster than the naive indexer.
+
+Future work on this strategy would be to compare this approach with
+less naive strategies to build an index. Moreover, as said in the
+introduction, it would probably be interesting to add compression
+methods to our algorithm in order to reduce the index size in the
+database.
+
 
 %----------------------------------------
 % Bibliography
 %----------------------------------------
-% Change Bibliography title to 'References'
+% changes default name Bibliography to References
 \renewcommand\bibname{References}
 \bibliography{bibliography}
 \bibliographystyle{IEEEannot}
