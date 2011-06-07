@@ -635,7 +635,7 @@ Figures \ref{fig:parserclassdiagram} and
 diagrams respectively for classes and methods involved in the
 implementation of the \texttt{Parser}.
 
-\begin{figure}
+\begin{figure}[h!]
   \begin{center}
         \includegraphics[width=\textwidth,height=!]{parserclassdiagram}
   \end{center}
@@ -643,7 +643,7 @@ implementation of the \texttt{Parser}.
   \label{fig:parserclassdiagram}
 \end{figure} 
 
-\begin{figure}
+\begin{figure}[h!]
   \begin{center}
         \includegraphics[width=\textwidth,height=!]{parsersequencediagram}
   \end{center}
@@ -711,7 +711,7 @@ machine and the building of the index using the state machine.
   proportional to the sum of the lengths of the keywords used to
   construct the state machine.
 
-  \begin{figure}
+  \begin{figure}[h]
     \begin{center}
       \includegraphics[width=\textwidth,height=!]{numkeywordstimecomplexbuildsm}
     \end{center}
@@ -736,7 +736,7 @@ machine and the building of the index using the state machine.
   increases, so does the size of the index and the number of database
   interacts required to store and update the index.
 
-  \begin{figure}
+  \begin{figure}[h]
     \begin{center}
       \includegraphics[width=\textwidth,height=!]{numkeywordstimecomplexbuildindex}
     \end{center}
@@ -792,7 +792,7 @@ to perform this experiment we had to run the indexer program with
 batches of 10,000 posts due to Java heap space problems. As a result, the state
 machine is rebuilt every 10,000 posts.  
 
-\begin{figure}
+\begin{figure}[h!]
   \begin{center}
     \includegraphics[width=\textwidth,height=!]{corpsizetimecomplexbuildindex}
   \end{center}
@@ -809,7 +809,7 @@ As expected, the space used to store the index in the database is
 proportional to the size of the corpus. This result is shown in figure
 \ref{fig:corpsizespacecomplexbuildindex}.
 
-\begin{figure}
+\begin{figure}[h!]
   \begin{center}
     \includegraphics[width=\textwidth,height=!]{corpsizespacecomplexbuildindex}
   \end{center}
@@ -848,7 +848,7 @@ our system on different length of substring of these posts.
   built in 770 ms on average for 1000 keywords with a standard
   deviation of 18ms. 
 
-  \begin{figure}
+  \begin{figure}[h!]
     \begin{center}
       \includegraphics[width=\textwidth,height=!]{docsizetimecomplexbuildsm}
     \end{center}
@@ -863,7 +863,7 @@ our system on different length of substring of these posts.
   respect to the average document size. This relationship is shown in
   figure \ref{fig:docsizetimecomplexbuildindex}.
 
-  \begin{figure}
+  \begin{figure}[h!]
     \begin{center}
       \includegraphics[width=\textwidth,height=!]{docsizetimecomplexbuildindex}
     \end{center}
@@ -884,7 +884,7 @@ since if a word occurs many times in the same post we just save it
 once in the database. This relationship is shown in figure
 \ref{fig:docsizespacecomplexbuildindex}. 
 
-\begin{figure}
+\begin{figure}[h!]
   \begin{center}
     \includegraphics[width=\textwidth,height=!]{docsizespacecomplexbuildindex}
   \end{center}
@@ -965,7 +965,7 @@ number of documents to 5,000 and we ran our code on a database
 composed of document of different length. The experiment results are
 shown in figure \ref{fig:naivedocumentsize}.
 
-\begin{figure}
+\begin{figure}[h!]
   \begin{center}
     \includegraphics[width=\textwidth,height=!]{naivedocumentsize}
   \end{center}
@@ -991,7 +991,7 @@ our indexer is far more efficient. To see this effect more clearly,
 experiment results are plotted on a logarithmic scale in figure
 \ref{fig:naivedocumentsizelog}.
 
-\begin{figure}
+\begin{figure}[h!]
   \begin{center}
     \includegraphics[width=\textwidth,height=!]{naivedocumentsizelog}
   \end{center}
@@ -1005,7 +1005,7 @@ experiment results are plotted on a logarithmic scale in figure
 
 \subsubsection{Number of Keywords}
 As expected, the two implementations exhibit a linear response to the
-number of keywords used. In the na\"{i}ve implmementation:
+number of keywords used. In the na\"{i}ve implemementation:
 
 \[Time \propto (keyNum * maxLength) * docNum + conn * keyNum\]
 
@@ -1020,10 +1020,10 @@ database. Knowing that the database access is very time consuming,
 increasing the number of keyword increases the probability of finding a
 keyword into each document and so increase the time complexity.  
 
-The experiment results are shown in figure \ref{fig:naivedocumentsize}
-and on a logarithmic scale in figure \ref{fig:naivedocumentsizelog}.
+The experiment results are shown in figure \ref{fig:naivenumkeywords}
+and on a logarithmic scale in figure \ref{fig:naivenumkeywordslog}.
 
-\begin{figure}
+\begin{figure}[p]
   \begin{center}
     \includegraphics[width=\textwidth,height=!]{naivenumkeywords}
   \end{center}
@@ -1034,7 +1034,7 @@ and on a logarithmic scale in figure \ref{fig:naivedocumentsizelog}.
 \end{figure} 
 
 
-\begin{figure}
+\begin{figure}[p]
   \begin{center}
     \includegraphics[width=\textwidth,height=!]{naivenumkeywordslog}
   \end{center}
@@ -1058,7 +1058,7 @@ and in our Aho-Corasick state machine method:
 \[Time \propto docNum * maxLenght + conn * docNum\]
 
 
-\begin{figure}
+\begin{figure}[p]
   \begin{center}
     \includegraphics[width=\textwidth,height=!]{naivesizecorpus}
   \end{center}
@@ -1070,7 +1070,7 @@ and in our Aho-Corasick state machine method:
 \end{figure} 
 
 
-\begin{figure}
+\begin{figure}[p]
   \begin{center}
     \includegraphics[width=\textwidth,height=!]{naivesizecorpuslog}
   \end{center}
