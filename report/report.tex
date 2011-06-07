@@ -155,14 +155,15 @@ document collections. As the field matures, improvements are harder
 fought and often involve increasingly complex algorithms and corpus
 approximation methods into which it becomes more difficult to
 \textit{fold-in} new documents. In addressing the considerable
-computation cost of re-calculating \textit{LSI} \cite{RefWorks:102}
-approximations, \cite{RefWorks:101} introduced new update methods
-which saw improved average precisions but were forced to conclude that
-the improvements were at a computational premium over previous
-methods. A semi-discrete matrix decomposition for LSI, \textit{SDD},
-performs as well as the original SVD-based LSI method for equal query
-times and uses less storage \cite{RefWorks:99}. The decomposition time
-of the new method, however, is significantly larger than the original.
+computation cost of re-calculating \textit{Latent Semantic Indexing}
+(LSI) \cite{RefWorks:102} approximations, \cite{RefWorks:101}
+introduced new update methods which saw improved average precisions
+but were forced to conclude that the improvements were at a
+computational premium over previous methods. A semi-discrete matrix
+decomposition for LSI, \textit{SDD}, performs as well as the original
+SVD-based LSI method for equal query times and uses less storage
+\cite{RefWorks:99}. The decomposition time of the new method, however,
+is significantly larger than the original.
 
 Enhancement of implementation efficiency in \cite{RefWorks:96} saw a
 six-fold timing improvement in \textit{LSI} searches on large document
@@ -212,44 +213,32 @@ LATE outperforming native Hadoop in most cases.
 %----------------------------------------
 \section{Research Plan}
 \label{sec:researchplan}
+The primary goals of this research project is to construct an
+information retrieval framework within which specific implementations
+can be evaluated under various operating conditions. To initiate the
+synthesis of this general framework, a reference implementation will
+be built, based on the notion of a simple inverted index.
 
-The research design and methods section should include the following:
+The software architecture of the reference implementation will be
+carefully documented and follow established design patterns in order
+to facilitate the future construction of alternative document search
+schemes within the same framework. The framework will be designed to
+be executed in a distributed deployment such that it may be used to
+evaluate the effect of parallelization on a particular algorithm.
+
+The performance of the reference implementation will be tested with
+respect to the following operating parameters and compared to analytic
+expectations:
 
 \begin{itemize}
-    \item an overview of the experimental design
-
-    \item a detailed description of specific methods to be employed to accomplish the specific aims
-
-    \item a detailed discussion of the way in which the results will be collected, analyzed, and interpreted
-
-    \item a projected sequence or timetable (work plan)
-
-    \item a description of any new methodology used and why it represents an improvement over the existing ones
-
-    \item a discussion of potential difficulties and limitations and how these will be overcome or mitigated
-
-    \item expected results, and alternative approaches that will be used if unexpected results are found
-
-    \item precautions to be exercised with respect to any procedures, situations, or materials that may be hazardous to personnel or human subjects
+\item Number of index keywords
+\item Number of documents in collection
+\item Average size of documents
 \end{itemize}
 
-
-Suggestion:
-
-    Number the sections in this part of the application to correspond to the numbers of the Specific Aims.
-
-    Give sufficient detail. Do not assume that the reviewers will know how you intend to proceed.
-
-    Avoid excessive experimental detail by referring to publications that describe the methods to be employed.
-
-    Publications cited should be by the applicants, if at all possible. Citing someone else's publication establishes that you know what method to use, but citing your own (or that of a collaborator) establishes that the applicant personnel are experienced with the necessary techniques.
-
-    If relevant, explain why one approach or method will be used in preference to others. This establishes that the alternatives were not simply overlooked. Give not only the "how" but the "why."
-
-    If employing a complex technology for the fast time, take extra care to demonstrate familiarity with the experimental details and potential pitfalls. Add a coinvestigator or consultant experienced with the technology, if necessary.
-
-    Document proposed collaborations and offers of materials or reagents of restricted availability with letters from the individuals involved.
-
+In addition, the reference implementation will be compared against a
+na\"{i}ve implementation of the inverted indexer. The na\"{i}ve
+implementation provided a baseline for further evaluation.
 
 
 %----------------------------------------
@@ -341,7 +330,7 @@ these layers is described in more detail in section
 
 \begin{figure}
   \begin{center}
-        \includegraphics[width=\textwidth,height=!]{overallclassdiagram}
+        \includegraphics[angle=90,width=\textwidth,height=!]{overallclassdiagram}
   \end{center}
   \caption{Overall UML class diagram design}
   \label{fig:overallclassdiagram}
@@ -382,16 +371,16 @@ in \cite{RefWorks:109}. An Aho-Corasick state machine
 \cite{RefWorks:103} is used to scan documents for a predefined set of
 keywords, and construct a term index for each document (delta
 index). The term occurrences for each document are used to augment an
-existing index for documents already processed. The document
+existing index of documents already processed. The document
 collection, index, and keyword list are maintained in a single MySQL
 database instance. It is through this database that the parallel
 indexer instances are initialized and synchronized. This configuration
 is operationally simple and easy to implement but the database has the
 potential to become a throttle point as the system is scaled to larger
-and faster-evolving document collections, and is required to service a
-higher rate of queries. In order to scale the current implementation
-to large document collections, a more efficient mechanism would be
-required in this respect.
+and more rapidly evolving document collections, and is required to
+service a higher rate of queries. In order to scale the current
+implementation to large document collections, a more efficient
+mechanism would be required in this respect.
 
 The following subsections detail the implementation of the
 architectural layers identified in section \ref{sec:design}.
@@ -417,13 +406,14 @@ The \texttt{DocumentDAO} singleton class provides methods for retrieving
   specified number of unprocessed documents from the database. The
   documents retrieved will be atomically marked as processed so that
   processing is not duplicated on other nodes. In this scheme, a
-  document is considered processed to all other processes once
-  retrieved from the database. This may cause problems from a fault
-  recovery perspective if the processing node fails. A proposed
-  enhancement to this scheme is to use another state, processing, to
-  indicate that the document has been retrieved and to update the
-  state to a processed state once processing is actually complete. For
-  the initial implementation we will use the processed state only.
+  document is considered \textit{processed} once retrieved from the
+  database. This may cause problems from a fault recovery perspective
+  if the processing node fails. A proposed enhancement to this scheme
+  is to use an intermediate state, \textit{processing}, to indicate
+  that the document has been retrieved and to update the state to
+  \textit{processed} once processing is actually complete. For the
+  initial implementation we will use the \textit{processed} state
+  only.
 
 \item \texttt{Document getDocumentById (int id)}: retrieve a specific
   document from the database, referenced by its ID. 
@@ -524,7 +514,7 @@ two methods defined in this class:
 \end{itemize}
 
  Figures \ref{fig:indexclassdiagram} and
- \ref{fig:indexsequencediagram} shows the UML class and sequence
+ \ref{fig:indexsequencediagram} show UML class and sequence
  diagrams respectively for classes and methods involved in the
  implementation of the Index data access layer.
 
@@ -556,25 +546,25 @@ finding all the documents which contained all query keywords.
 
 \begin{itemize}
 \item \texttt{List<Document> search (String)}: given a comma-separated
-  list of search terms, returns the list of documents in which
-  the canonical form of all search terms appear together. This method
+  list of search terms, returns the list of documents in which the
+  canonical form of all search terms appear together. This method
   First calls \texttt{List<int> KeywordDAO.canonize (String)}, to map
   string query keywords into corresponding list of keyword IDs.  Note:
   We are assuming that the query will be formed with the set of
-  keywords, which will be a subset of the global keyword set, with which
-  the parsing state machine is constructed.
+  keywords, which will be a subset of the global keyword set, with
+  which the parsing state machine is constructed.
 
-  Then it calls \texttt{List<Integer> IndexDAO.find (List<querykeywordIDs>)},
-  which will searches in INDEX DB for a list of Common DOC\_IDs
-  corresponding to given query keywords. 
+  Then it calls \texttt{List<Integer> IndexDAO.find
+    (List<querykeywordIDs>)}, which will searches in INDEX DB for a
+  list of Common DOC\_IDs corresponding to given query keywords.
 
   In the end, it calls \texttt{List<Document>
     DocumentDAO.getDocumentById (DOC\_ID)}. This will map DOC\_ID into
-  a \texttt{Document} from the BLOG table in the database.  
+  a \texttt{Document} from the BLOG table in the database. 
 \end{itemize}
  
 Figures \ref{fig:searcherclassdiagram} and
-\ref{fig:searchersequencediagram} shows the UML class and sequence
+\ref{fig:searchersequencediagram} show UML class and sequence
 diagrams respectively for classes and methods involved in the
 implementation of the \texttt{Searcher} class.
 
@@ -608,7 +598,7 @@ architecture of a state. Once the state machine is built, the function
 class.
 
 Figures \ref{fig:statemachineclassdiagram} and
-\ref{fig:statemachinesequencediagram} shows the UML class and sequence
+\ref{fig:statemachinesequencediagram} show UML class and sequence
 diagrams respectively for classes and methods involved in the
 implementation of the \texttt{StateMachineBuilder}.
 
@@ -641,7 +631,7 @@ object which encapsulates a reference to the document parsed and the
 keywords found to occur within the document.
 
 Figures \ref{fig:parserclassdiagram} and
-\ref{fig:parsersequencediagram} shows the UML class and sequence
+\ref{fig:parsersequencediagram} show UML class and sequence
 diagrams respectively for classes and methods involved in the
 implementation of the \texttt{Parser}.
 
@@ -667,37 +657,31 @@ implementation of the \texttt{Parser}.
 %----------------------------------------
 \section{Experiment Results}
 \label{sec:experimentresults}
-The whole idea of the project belongs in being able to reduce the time
-to build the index. As our system is building the inverted index by
-parsing all the post into the state machine, we can expect that the
-complexity will be proportional to the whole number of characters of
-all the post we want to build the index for. As a result changing the
-number of Posts, the number of characters inside of each post should
-have a big impact in our time complexity. Besides, we should also have
-a time needed at the very beginning of the running to build the state
-machine. We can expect that the building of the state machine needs a
-time proportional to the sum of the size of the keywords.
+The primary goal of this project is to be able to reduce the time
+to build a document index. As our system is building the inverted index by
+parsing all documents of the collection, we can expect the
+time complexity of the task to be proportional to the sum total of
+characters in the collection. As a result, changing the  
+number of documents or the average size of each document should
+have a big impact in our time complexity. In addition, our
+implementation will incur the cost of building the Aho-Corasick state
+machines used to scan the documents. We can expect the time to build a
+state machine to be proportional to the sum of the size of the
+keywords. 
 
-The system proposed in this paper doesn’t take care of various
-compression techniques for storing the index. To do that, many
-techniques have been explored in the literature. We will just
-highlight the different sizes of our indexes according to different
-parameters.
-
-Finally we will do a time comparison between our way of building the
-inverted index and the naive way.  All the time complexities tests are
+Finally we will do a time comparison between our indexer
+implementation and a na\"{i}ve implementation. All the time
+complexities tests are  
 done on a single computer and it is important to understand that all
 these processes can be parallelized. A future work would be to install
-the system on multiple computers and explore the gain in time by
-running the code simultaneously on these computers.
+our indexer on multiple computers and explore the performance gain of
+running parallel instances simultaneously on all these computers.
 
 
 All tests were run on a single Intel Core 2 Duo 2GHz
-processor, 1GB RAM, running a 32 bit Linux 2.6.37 kernel. The Java
-Virtual Machine used was version 1.6.0-24. The database used was MySQL
-x.x, running on ....
-
-
+processor, 1GB RAM, running a 64-bit Linux 2.6.35 SMP kernel. The Java
+Virtual Machine used was version 1.6.0-24. The database used was
+MySQL, running on the same node as the indexer.
 
 
 %----------------------------------------
@@ -705,15 +689,14 @@ x.x, running on ....
 %----------------------------------------
 \subsection{Number of Keywords}
 To be able to study the impact of different number of keywords, we
-built a keywords database with 10.000 most popular English
-words. These 10.000 words come from:
-http://www.mit.edu/~ecprice/wordlist.10000 All the experiments in this
-part are done with 50.000 posts randomly downloaded from internet. The
-idea is to get some heterogeneous length and type of post such that it
-is realistic.  The experiment shown here consist on building the index
-for different number of keywords from the 10.000 keywords database and
+built a keywords database with 10,000 most popular English
+words \cite{wordlist}. All the experiments in this
+part are done with 50,000 posts randomly downloaded from the Internet. The
+idea is to get a good distribution of documents with respect to length
+and content. The experiment shown here consist of building the index
+for different numbers of keywords from the 10,000 keyword database and
 explore the time and space complexity for the building of the state
-machine and the building of the index once the state machine is built.
+machine and the building of the index using the state machine.
 
 
 \subsubsection{Time Complexity}
@@ -733,7 +716,7 @@ machine and the building of the index once the state machine is built.
       \includegraphics[width=\textwidth,height=!]{numkeywordstimecomplexbuildsm}
     \end{center}
     \caption{Time to build Aho-Corasick state machine as a function of
-      the number of keywords. Time taken is shown in miliseconds on the
+      the number of keywords. Time taken is shown in milliseconds on the
       y-axis and the number of keywords on the x-axis}
     \label{fig:numkeywordstimecomplexbuildsm}
   \end{figure} 
@@ -749,7 +732,7 @@ machine and the building of the index once the state machine is built.
   time complexity to increase with the size of the keyword set. However,
   as can be seen in \ref{fig:numkeywordstimecomplexbuildindex}, the time
   to build the index increases logarithmically with the number of
-  keywords. This is likely due to the fac that as the number of keywords
+  keywords. This is likely due to the fact that as the number of keywords
   increases, so does the size of the index and the number of database
   interacts required to store and update the index.
 
@@ -758,7 +741,7 @@ machine and the building of the index once the state machine is built.
       \includegraphics[width=\textwidth,height=!]{numkeywordstimecomplexbuildindex}
     \end{center}
     \caption{Time to build the inverted index as a function of the
-      number of keywords. Time taken is shown in miliseconds on the
+      number of keywords. Time taken is shown in milliseconds on the
       y-axis and the number of keywords on the x-axis}
     \label{fig:numkeywordstimecomplexbuildindex}
   \end{figure} 
@@ -770,7 +753,7 @@ machine and the building of the index once the state machine is built.
 As we would have expected it, the space used by the index in the
 database is proportional to the number of words we are using. It also
 means that our words have the same probability at the beginning or at
-the end of our 12,000 words dictionnary. This result is reflected in
+the end of our 12,000 word dictionary. This result is reflected in
 figure \ref{fig:numkeywordsspacecomplexbuildindex}.
 
 \begin{figure}
@@ -789,9 +772,9 @@ figure \ref{fig:numkeywordsspacecomplexbuildindex}.
 %----------------------------------------
 \subsection{Size of Corpus}
 To be able to study the impact of different number of Posts, we built
-a posts database with 400.000 posts randomly downloaded from
-internet. Then the keywords used to build the index are simply the
-first 5.000 from the previous keywords database. 
+a posts database with 400,000 posts randomly downloaded from
+the Internet. Then the keywords used to build the index are simply the
+first 5,000 from the previous keywords database. 
 
 The experiment shown here consist on building the index for different
 number of Posts and explore the time and space complexity for the
@@ -806,7 +789,7 @@ As we were expecting, the time to build the index with the state
 machine strategy is linear with respect to the number of post, as
 depicted in figure \ref{fig:corpsizetimecomplexbuildindex}. However, to be able
 to perform this experiment we had to run the indexer program with
-batches of  10,000 posts due to Java heap space problems. As a result, the state
+batches of 10,000 posts due to Java heap space problems. As a result, the state
 machine is rebuilt every 10,000 posts.  
 
 \begin{figure}
@@ -814,7 +797,7 @@ machine is rebuilt every 10,000 posts.
     \includegraphics[width=\textwidth,height=!]{corpsizetimecomplexbuildindex}
   \end{center}
     \caption{Time to build the inverted index as a function of the
-      size of the corpus. Time taken is shown in miliseconds on the
+      size of the corpus. Time taken is shown in milliseconds on the
       y-axis and the number of documents in the collection on the
       x-axis} 
     \label{fig:corpsizetimecomplexbuildindex}
@@ -822,7 +805,7 @@ machine is rebuilt every 10,000 posts.
 
 
 \subsubsection{Space Complexity}
-As expected, the space used to sptore the index in the database is
+As expected, the space used to store the index in the database is
 proportional to the size of the corpus. This result is shown in figure
 \ref{fig:corpsizespacecomplexbuildindex}.
 
@@ -846,8 +829,8 @@ As we have seen before, the time to build the index is almost
 proportional with the number of post. Theoretically this time should
 be proportional to the total length of all posts. Let’s focus on this
 aspect and study the impact of the length of the post on the time to
-build the state machine. To do that we built a 5.000 posts database
-with posts that are all composed of 20.000 characters. Then, we ran
+build the state machine. To do that we built a 5,000 posts database
+with posts that are all composed of 20,000 characters. Then, we ran
 our system on different length of substring of these posts.  
 
 
@@ -861,7 +844,7 @@ our system on different length of substring of these posts.
   times for the state machine and inverted index relative to the
   average document size. The comparison shows that state machine
   construction time is several orders of magnitude smaller than index
-  construction and negligible by comnparison. Our state machine is
+  construction and negligible by comparison. Our state machine is
   built in 770 ms on average for 1000 keywords with a standard
   deviation of 18ms. 
 
@@ -870,7 +853,7 @@ our system on different length of substring of these posts.
       \includegraphics[width=\textwidth,height=!]{docsizetimecomplexbuildsm}
     \end{center}
     \caption{Time to build Aho-Corasick state machine as a function of
-      the average document size. Time taken is shown in miliseconds on the
+      the average document size. Time taken is shown in milliseconds on the
       y-axis and the average document size in characters on the x-axis}
     \label{fig:docsizetimecomplexbuildsm}
   \end{figure} 
@@ -885,7 +868,7 @@ our system on different length of substring of these posts.
       \includegraphics[width=\textwidth,height=!]{docsizetimecomplexbuildindex}
     \end{center}
     \caption{Time to build an inverted index as a function of the
-      average document size. Time taken is shown in miliseconds on the
+      average document size. Time taken is shown in milliseconds on the
       y-axis and the average document size in characters on the x-axis} 
     \label{fig:docsizetimecomplexbuildindex}
   \end{figure} 
@@ -918,7 +901,7 @@ once in the database. This relationship is shown in figure
 %----------------------------------------
 \subsection{Comparison with Na\"{i}ve Index Builder}
 This part focuses on the improvement that our system with respect to
-time complexity in comparison with a na\"{i}e index builder. The na\"{i}ve
+time complexity in comparison with a na\"{i}ve index builder. The na\"{i}ve
 indexer builder has the same input as our system i.e. a list of
 keywords and a list of documents, and the same output i.e. an inverted
 index corresponding to the keywords and documents. Algorithm
@@ -1013,7 +996,7 @@ experiment results are plotted on a logarithmic scale in figure
     \includegraphics[width=\textwidth,height=!]{naivedocumentsizelog}
   \end{center}
   \caption{Time to build an inverted index as a function of the
-      average document size. Time taken is shown in miliseconds on the
+      average document size. Time taken is shown in milliseconds on the
       y-axis and the average document size in characters on the
       logarithmic x-axis}
   \label{fig:naivedocumentsizelog}
@@ -1045,7 +1028,7 @@ and on a logarithmic scale in figure \ref{fig:naivedocumentsizelog}.
     \includegraphics[width=\textwidth,height=!]{naivenumkeywords}
   \end{center}
   \caption{Time to build an inverted index as a function of the
-      number of keywords. Time taken is shown in miliseconds on the
+      number of keywords. Time taken is shown in milliseconds on the
       y-axis and the number of keywords on the x-axis}
   \label{fig:naivenumkeywords}
 \end{figure} 
@@ -1056,7 +1039,7 @@ and on a logarithmic scale in figure \ref{fig:naivedocumentsizelog}.
     \includegraphics[width=\textwidth,height=!]{naivenumkeywordslog}
   \end{center}
   \caption{Time to build an inverted index as a function of the
-      number of keywords. Time taken is shown in miliseconds on the
+      number of keywords. Time taken is shown in milliseconds on the
       y-axis and the number of keywords on the logarithmic x-axis}
   \label{fig:naivenumkeywordslog}
 \end{figure} 
@@ -1081,7 +1064,7 @@ and in our Aho-Corasick state machine method:
   \end{center}
   \caption{Time to build an inverted index as a function of the
       number of documents being indexed. Time taken is shown in
-      miliseconds on the y-axis and the number of documents on the
+      milliseconds on the y-axis and the number of documents on the
       x-axis} 
   \label{fig:naivesizecorpus}
 \end{figure} 
@@ -1093,7 +1076,7 @@ and in our Aho-Corasick state machine method:
   \end{center}
   \caption{Time to build an inverted index as a function of the
       number of documents being indexed. Time taken is shown in
-      miliseconds on the y-axis and the number of documents on the
+      milliseconds on the y-axis and the number of documents on the
       logarithmic x-axis} 
   \label{fig:naivesizecorpuslog}
 \end{figure} 
