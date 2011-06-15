@@ -1,88 +1,168 @@
 import java.util.List;
+import java.util.Vector;
+
 import StateMachine.Parser1;
 import StateMachine.StateMachineBuilder;
 import data.Document;
 import data.DocumentDAO;
 import data.IndexDAO;
 import data.Keyword;
-import data.KeywordDAO;
 import data.KeywordDAO2;
+import data.TemporaryIndex;
+import data.Timer;
 
 
 public class Indexer2 {
 	private static int docBatchSize=100;
-	private static int maxDocs=1000;
-    private static int totalKeywords=100;	
-	
+	private static int totalKeywords=1000;	
+	   
+    
 	public Indexer2() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public static void IndexDocuments(){
-		        
-        int count =0;
-		System.out.println("Indexer starting. Document batch size set to " + docBatchSize);
-		while ( count <maxDocs){
-			if (count<=maxDocs){
-            	count++;
-            }else{break;}
-	            List<Document> documents = DocumentDAO.getInstance().getDocuments (docBatchSize);
-	            System.out.println("Retrieved " + documents.size() + " unprocessed documents.");
-           
-	            for (Document document : documents){
-	            count++;
-	            System.out.println(document.toString());
-	            System.out.println("Indexing Document ID: "+ document.getId());	
-	                // update indexx for a given document
-	                IndexDAO.getInstance().UpdateIndex(Parser1.parse(document));
-	            }
-	            
-	        }
-
-	        
-	      
-	}
-	 public static void buildMachine(){
-		 System.out.println("Loading keywords");
+	public static void buildMachine(){
+		 //System.out.println("Loading keywords");
 			KeywordDAO2 Key= new KeywordDAO2(totalKeywords);
 			List<Keyword> keywords = Key.getKeywords();
-			//List<Keyword> keywords = KeywordDAO.getInstance().getKeywords(totalKeywords);
-	        System.out.println("Fetched "+ totalKeywords+" Keywords");
+			        
 	     
-		// Build state machine
+		// Building state machine
 	        StateMachineBuilder sm=new StateMachineBuilder();
 	        sm.createStateMachine(keywords);
 	        
 	 }
 	
+ 	public static void IndexDocuments(int maxDocs){
+ 		//List<Document> documents=null;
+		List<Document> documents =null;      
+		
+		if (Timer.getInstance().GetTime()==0){
+			Timer.getInstance().UpdateTime(1);			
+		}	
+		
+		int count =0;
+		//System.out.println("Indexer starting. Document batch size set to " + docBatchSize);
+		while ( count <maxDocs){
+			System.out.println(count);
+			if (count<=maxDocs){
+            	count++;
+            
+			}else{break;}
+			
+				
+			
+	            ///List<Document> 
+				documents = DocumentDAO.getInstance().getDocuments (docBatchSize);
+				//System.out.println("Retrieved " + documents.size() + " unprocessed documents.");
+			if (documents.size()==docBatchSize){	
+						
+				Vector<TemporaryIndex> TempIndexVector= new Vector<TemporaryIndex>();
+	            
+				for (Document document : documents){
+	            	count++;
+	            	TempIndexVector.add(Parser1.parse(document));
+	            	// IndexDAO.getInstance().UpdateIndex(Parser1.parse(document))   ;         
+				}
+	          
+	            IndexDAO.getInstance().UpdateIndex(TempIndexVector);// update TempIndex vector in db
+	       		
+	            TempIndexVector.clear();
+	            documents.clear();
+	         
+			}else{
+				
+	        	   
+	        	   	Vector<TemporaryIndex> TempIndexVector= new Vector<TemporaryIndex>();
+		            for (Document document : documents){
+		            	count++;
+		                TempIndexVector.add(Parser1.parse(document));
+		                //IndexDAO.getInstance().UpdateIndex(Parser1.parse(document))   ;         
+		            }
+		          
+		            IndexDAO.getInstance().UpdateIndex(TempIndexVector);
+		       		TempIndexVector.clear();
+		            documents.clear();
+	        	   
+		         		                  	 
+		 		   //update Time and date in db
+		 		    Timer.getInstance().UpdateTime(2);
+		 		   
+		 		   
+	        	   System.exit(0);
+	        	   
+	           }
+	          
+	            
+	        }//while
+
+	        
+	      
+	}
 	
+	public static void IndexDocuments(){
+ 		   
+	if (Timer.getInstance().GetTime()==0){
+		Timer.getInstance().UpdateTime(1);			
+	}	
+	
+	while (true){
+					
+	    List<Document> documents = DocumentDAO.getInstance().getDocuments (docBatchSize);
+				
+				
+			if (documents.size()==docBatchSize){	
+						
+				Vector<TemporaryIndex> TempIndexVector= new Vector<TemporaryIndex>();
+	            
+				for (Document document : documents){
+					System.out.println("Document ID: "+ document.getId()+" Indexed");
+					TempIndexVector.add(Parser1.parse(document));
+					         
+				}
+	          
+				IndexDAO.getInstance().UpdateIndex(TempIndexVector);// update TempIndex vector in db
+	       		TempIndexVector.clear();
+				documents.clear();
+	         
+			}else{
+				
+	        	Vector<TemporaryIndex> TempIndexVector= new Vector<TemporaryIndex>();
+		            
+	        	for (Document document : documents){
+		           	TempIndexVector.add(Parser1.parse(document));
+		           	//IndexDAO.getInstance().UpdateIndex(Parser1.parse(document))   ;         
+		        }
+		          
+		        IndexDAO.getInstance().UpdateIndex(TempIndexVector);
+		        TempIndexVector.clear();
+		        documents.clear();
+	        	         		                  	 
+		 		//update Time and date in db
+		 		Timer.getInstance().UpdateTime(2);
+		 		 
+		 		System.exit(0);// Terminate the process as there are no more unprocessed documents
+	        	   
+	           }// end else
+	          
+	            
+	 }//end while
+  
+}
+	
+	public static void Run(){
+		
+		buildMachine();//build state machine
+		
+		IndexDocuments();// start indexing documents
+				
+	}
 	
 	
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		double start, end , time;
-		start=System.currentTimeMillis();
-		buildMachine();
-		end=System.currentTimeMillis();
-		time= end-start;
-		//System.out.println("Time taken to BuildState Machine with "+ totalKeywords + " Keywords is "+ time+ " ms");
-		//System.out.println("");
+			
+				Run();
 		
-		double start1, end1 , time1;
-		start1=System.currentTimeMillis();
-		IndexDocuments();
-		end1=System.currentTimeMillis();
-		time1= end1-start1;
-		System.out.println("");
-		System.out.println("***** Indexing Complete *****");
-		System.out.println("");
-		System.out.println("Time taken to BuildState Machine with "+ totalKeywords + " Keywords is "+ time+ " ms");
-		System.out.println("");
-		System.out.println("");
-		System.out.println("Time taken to Index "+ maxDocs +" Documents is : "+ time1+ " ms");
-		System.exit(0);// terminate the JVM
-	
-	
 	}
 
 }
