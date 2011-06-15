@@ -84,11 +84,11 @@ public class IndexDAO {
 	public void UpdateIndex(TemporaryIndex DeltaIndex){
 		int DocumentId=DeltaIndex.getDocumentId();
 		Vector<Integer>keywordIdlist=DeltaIndex.getKeywordList();// list of keyword ids to be added for given Document id.
-		Vector<Integer> ExistingKeywordIds= getKeywordsList(DocumentId);// returns the list of keyword ids in Index table for given Document id.
+		//Vector<Integer> ExistingKeywordIds= getKeywordsList(DocumentId);// returns the list of keyword ids in Index table for given Document id.
 		if (!keywordIdlist.isEmpty()){
 		String sqlquery= "INSERT INTO Indexx (DocumentId,KeywordId)VALUES";
 		for (int i=0;i<keywordIdlist.size();i++){
-			if (!ExistingKeywordIds.contains(keywordIdlist.get(i))){
+			//if (!ExistingKeywordIds.contains(keywordIdlist.get(i))){
 			
 				if (i!=keywordIdlist.size()-1){
 				sqlquery=sqlquery+"("+DocumentId+","+ keywordIdlist.get(i)+")"+",";
@@ -97,19 +97,26 @@ public class IndexDAO {
 				}
 				
 				
-				}
+				//}
 			}
-		
+				
 		sqlquery=sqlquery+";";
 		// at the end "sqlquery" is of the form
 		//INSERT INTO test.Index (DocumentId,KeywordId)VALUES (7, 2),(7,3);
 		//System.out.println(sqlquery);
-						 
+		
+		keywordIdlist.clear();
+		
+		
+		
 	    try 
         {
             Connection con = __cpm.getConnection (__connectionPoolName);
             PreparedStatement stmt = con.prepareStatement(sqlquery);
+            stmt.execute();
+            
             con.close();
+            
         } 
         catch(SQLException ex) 
         {
@@ -119,7 +126,84 @@ public class IndexDAO {
 		}
 		
 	}
+		
+	public void UpdateIndex(Vector<TemporaryIndex> TempIndexVector){
+		
+		String sqlquery= "INSERT INTO Indexx (DocumentId,KeywordId) VALUES ";
 	
+		for (int j=0; j<TempIndexVector.size();j++){
+		
+		TemporaryIndex DeltaIndex= TempIndexVector.get(j);
+		
+		
+		int DocumentId=DeltaIndex.getDocumentId();
+		Vector<Integer>keywordIdlist=DeltaIndex.getKeywordList();// list of keyword ids to be added for given Document id.
+		
+		if (!keywordIdlist.isEmpty()){
+		
+		for (int i=0;i<keywordIdlist.size();i++){
+			//if (!ExistingKeywordIds.contains(keywordIdlist.get(i))){
+			
+				if (i!=keywordIdlist.size()-1 ){
+				sqlquery=sqlquery+"("+DocumentId+","+ keywordIdlist.get(i)+")"+",";
+				}else {
+					sqlquery=sqlquery+"("+DocumentId+","+ keywordIdlist.get(i)+")";
+				if (j!=TempIndexVector.size()-1){
+					sqlquery=sqlquery+",";
+				}else {
+					sqlquery=sqlquery+";";
+				}
+				
+				
+				}
+				
+			}
+		}
+		
+			
+	}
+		
+		
+			
+	
+		
+		// at the end "sqlquery" is of the form
+		//INSERT INTO test.Index (DocumentId,KeywordId)VALUES (7, 2),(7,3);
+		//System.out.println(sqlquery);
+			
+		
+		
+		
+	    try 
+        {
+	    	
+            Connection con = __cpm.getConnection (__connectionPoolName);
+           
+            PreparedStatement stmt = con.prepareStatement(sqlquery);
+            
+            stmt.execute();
+            
+            con.close();
+            
+        } 
+        catch(SQLException ex) 
+        {
+            log.severe ("Error in Updating Temporary Index");
+        } 
+		
+		}
+		
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/*
 	// To avoid duplicate entries of documentid and keyword id while updating Index table
 	// used in method UpdateIndex
 	public Vector<Integer> getKeywordsList(int DocId){
@@ -158,6 +242,9 @@ public class IndexDAO {
 		
 		
 	}
+	*/
+	
+	
 	
 	
 	public static void main(String[] args) {
