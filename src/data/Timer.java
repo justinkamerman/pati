@@ -42,7 +42,7 @@ public class Timer {
 	
 	public void UpdateTime(int ID){
 		
-		String sqlquery="Update Indexerdb.timer set LatestTime= NOW() where ID="+ ID +";";
+		String sqlquery="Update timer set LatestTime= NOW() where ID="+ ID +";";
 		
 		try 
         {
