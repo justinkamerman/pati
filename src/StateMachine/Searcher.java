@@ -12,8 +12,7 @@ public class Searcher {
 
 	public static List<Document> Search(String fullquery){
 		Vector<Document> DocsRelated2Query=new Vector<Document>();	
-		
-		
+				
 		List<Integer> querykeywordIDs= KeywordDAO.getInstance().canonize(fullquery);
 		List<Integer> CommonDocIds=IndexDAO.getInstance().Find(querykeywordIDs);
 				
@@ -32,7 +31,12 @@ public class Searcher {
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-
+		System.out.println(Search("terrorism").get(2).getContent());
+	
+	    System.exit(0);
+	
 	}
-
+	
+	
+	
 }
