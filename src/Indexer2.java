@@ -130,7 +130,8 @@ public class Indexer2 {
 	        	Vector<TemporaryIndex> TempIndexVector= new Vector<TemporaryIndex>();
 		            
 	        	for (Document document : documents){
-		           	TempIndexVector.add(Parser1.parse(document));
+	        		System.out.println("Document ID: "+ document.getId()+" Indexed");
+	        		TempIndexVector.add(Parser1.parse(document));
 		           	//IndexDAO.getInstance().UpdateIndex(Parser1.parse(document))   ;         
 		        }
 		          
@@ -140,7 +141,7 @@ public class Indexer2 {
 	        	         		                  	 
 		 		//update Time and date in db
 		 		Timer.getInstance().UpdateTime(2);
-		 		 
+		 		 System.out.println("Terminating Process: No more unprocessed Documents");
 		 		System.exit(0);// Terminate the process as there are no more unprocessed documents
 	        	   
 	           }// end else

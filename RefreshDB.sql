@@ -2,4 +2,4 @@ Truncate Indexx;
          
 Truncate DocumentProcessed;
         
-Update timer set LatestTime= 0 where ID= 1 and 2;
+Update Indexerdb.timer set LatestTime = 0 where ID in(1,2);
