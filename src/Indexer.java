@@ -32,7 +32,7 @@ public class Indexer extends Thread
     private static Logger log = Logger.getLogger (Indexer.class.getName());
     private Options __opt;
     private CommandLine __cl;
-    private int __docBatchSize = 10;
+    private int __docBatchSize = 100;
     private ConnectionPoolManager __cpm = null;
     private boolean __shutdown = false;
     private Thread __main;
