@@ -43,11 +43,11 @@ public class ClearDatabase {
          
          PreparedStatement stmt1 = con.prepareStatement("Truncate Indexx;");
          PreparedStatement stm2 = con.prepareStatement("Truncate DocumentProcessed;");
-         PreparedStatement stm3 = con.prepareStatement("Update timer set LatestTime= 0 where ID= 1 and 2;");
+         PreparedStatement stm3 = con.prepareStatement("Update timer set LatestTime= 0 where ID in(1 ,2);");
          
          stmt1.executeQuery ();
          stm2.executeQuery ();
-         stm3.executeQuery();
+         stm3.execute();
              
         
          PreparedStatement stm4 = con.prepareStatement("Select count(*) from Indexx;");

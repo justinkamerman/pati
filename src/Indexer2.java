@@ -105,9 +105,9 @@ public class Indexer2 {
 	if (Timer.getInstance().GetTime()==0){
 		Timer.getInstance().UpdateTime(1);			
 	}	
-	
-	while (true){
-					
+	int count =0;
+	while (count<10000){
+				
 	    List<Document> documents = DocumentDAO.getInstance().getDocuments (docBatchSize);
 				
 				
@@ -116,6 +116,7 @@ public class Indexer2 {
 				Vector<TemporaryIndex> TempIndexVector= new Vector<TemporaryIndex>();
 	            
 				for (Document document : documents){
+					count	++;
 					System.out.println("Document ID: "+ document.getId()+" Indexed");
 					TempIndexVector.add(Parser1.parse(document));
 					         
@@ -130,6 +131,7 @@ public class Indexer2 {
 	        	Vector<TemporaryIndex> TempIndexVector= new Vector<TemporaryIndex>();
 		            
 	        	for (Document document : documents){
+	        		count	++;
 	        		System.out.println("Document ID: "+ document.getId()+" Indexed");
 	        		TempIndexVector.add(Parser1.parse(document));
 		           	//IndexDAO.getInstance().UpdateIndex(Parser1.parse(document))   ;         
@@ -148,6 +150,8 @@ public class Indexer2 {
 	          
 	            
 	 }//end while
+	System.out.println("Killing the process and starting again");
+	System.exit(0);
   
 }
 	
