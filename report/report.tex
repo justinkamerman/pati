@@ -671,17 +671,17 @@ keywords.
 
 Finally we will do a time comparison between our indexer
 implementation and a na\"{i}ve implementation. All the time
-complexities tests are  
-done on a single computer and it is important to understand that all
-these processes can be parallelized. A future work would be to install
-our indexer on multiple computers and explore the performance gain of
-running parallel instances simultaneously on all these computers.
+complexities tests are done on a single computer and it is important
+to understand that all these processes can be parallelized. In section
+\ref{parallelization} we install our indexer on multiple computers and
+explore the performance gain of running parallel instances
+simultaneously.
 
 
-All tests were run on a single Intel Core 2 Duo 2GHz
-processor, 1GB RAM, running a 64-bit Linux 2.6.35 SMP kernel. The Java
-Virtual Machine used was version 1.6.0-24. The database used was
-MySQL, running on the same node as the indexer.
+All tests were run on a single Intel Core 2 Duo 2GHz processor, 1GB
+RAM, running a 64-bit Linux 2.6.35 SMP kernel. The Java Virtual
+Machine used was version 1.6.0-24. The database used was MySQL,
+running on the same node as the indexer.
 
 
 %----------------------------------------
@@ -1079,6 +1079,21 @@ and in our Aho-Corasick state machine method:
       milliseconds on the y-axis and the number of documents on the
       logarithmic x-axis} 
   \label{fig:naivesizecorpuslog}
+\end{figure} 
+
+
+%----------------------------------------
+% Parallelization
+%----------------------------------------
+\subsection{Parallelization}
+\label{parallelization}
+
+\begin{figure}[p]
+  \begin{center}
+    \includegraphics[width=\textwidth,height=!]{paralleldeploymentmodel}
+  \end{center}
+  \caption{Deployment model of parallel indexer} 
+  \label{fig:paralleldeploymentmodel}
 \end{figure} 
 
 
