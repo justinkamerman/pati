@@ -1087,8 +1087,24 @@ and in our Aho-Corasick state machine method:
 %----------------------------------------
 \subsection{Parallelization}
 \label{parallelization}
+Given the modular architecture of our indexer, it is possible to
+deploy multiple instances of the program to work concurrently on the same
+indexing task. The instances interact via the database which
+synchronizes their operations on the corpus and the index itself. To
+investigate the effect of parallelization on the indexer operation, the
+indexer was deployed as follows:
 
-\begin{figure}[p]
+\begin{itemize}
+\item Single database server storing documents, keywords, and the
+  resulting index.
+\item Four indexer nodes each running a single instance of the indexer
+  program. 
+\end{itemize}
+
+This deployment as well as a description of the sequence of operation
+are shown in figure \ref{fig:paralleldeploymentmodel}.
+
+\begin{figure}[h]
   \begin{center}
     \includegraphics[width=\textwidth,height=!]{paralleldeploymentmodel}
   \end{center}
@@ -1096,16 +1112,53 @@ and in our Aho-Corasick state machine method:
   \label{fig:paralleldeploymentmodel}
 \end{figure}
 
+In this experiment a corpus of 100,00 documents and 1000 keywords were
+used, each document 5000 words in length. Tests were run using various
+node combinations and the time taken to index the corpus was measured and
+normalized to a throughput metric (documents/second) for convenient
+comparison. Test results using the same number of nodes were averaged
+to account for differences in the physical capabilities and
+configuration of the worker nodes. Next, a series of tests was
+performed using a corpus of 800,000 documents to investigate the
+effect of corpus size on performance. The results of this experiment
+are shown in figure \ref{fig:parallelization} and described in detail
+in the following section.
 
-\begin{figure}[p]
+\begin{figure}[h]
   \begin{center}
     \includegraphics[width=\textwidth,height=!]{parallelization}
   \end{center}
-  \caption{Performance characteristics of parallel indexer deployment} 
+  \caption{Performance characteristics of parallel indexer
+    deployment. The \textit{ideal} curve shows the theoretical
+    performance curve based on linear combination of average
+    individual node performance over the corpus} 
   \label{fig:parallelization}
 \end{figure} 
 
+\subsubsection{Results}
+For the 100,000 document corpus, increasing the number of nodes
+increases throughput but with diminishing returns. As the database
+connection pool is saturated, this becomes the limiting factor of the
+architecture. If the number of nodes were increased further, one would
+expect the curve to plateau at some point. After this point, adding
+additional nodes would offer no improvement and may even decrease
+performance as the worker processes spend an increasing amount of time
+context switching and contending for locks. These factors could be
+mitigated up to a point by increasing batch sizes and tuning the
+database. However, the characteristics of the curve are ultimately
+unavoidable in the current architecture. 
 
+For the 800,000 document corpus, the performance curve shows an even
+more severe degradation than the smaller corpus. Since we normalize
+the performance metrics for the size of the document collection, one
+would expect this curve to be more similar to that of the 100,000
+document collection. A possible explanation for the deviation is that
+for the larger collection, more documents were present in the
+database and the resulting index larger. This results in longer table
+scan times to retrieve and update records. This effect could be
+alleviated through the use of indices and other database optimization
+techniques, however, as for the smaller document
+collection, this degradation is ultimately unavoidable.
 
 
 %----------------------------------------
@@ -1125,9 +1178,12 @@ naive indexer.
 
 One of the primary goals of this research project was to leverage the
 effect of parallelization in reducing the time to index a document
-collection. Due to time constraints, this was not done but the
-resulting implementation lays a strong foundation for further research
-in this area. Other avenues of interest include, but are not limited
+collection. We successfully demonstrated that performance gains could
+be achieved for the indexing task through parallelization as well as
+the fact that our architecture offers diminishing returns as the
+number of nodes is increased and as the corpus becomes larger.
+
+ Other avenues of interest include, but are not limited
 to:
 
 \begin{itemize}
@@ -1136,6 +1192,10 @@ to:
     
     \item Use compression techniques to our algorithm in order to
       reduce the index size in the database.
+
+      \item Conduct further parallelization experiments to determine
+        the performance characteristics of our indexer over a wider
+        range of operating conditions.
 
     \item Study the time performance improvements possible deploying
       the Aho-Corasick state machine indexer within a commercial
