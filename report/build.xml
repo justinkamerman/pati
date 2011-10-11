@@ -8,6 +8,7 @@
 <project name="doc" default="report" basedir=".">
 
     <property name="report" value="report"/>
+    <property name="article" value="article"/>
 
     <!-- Macro definitions -->
     <macrodef name="pdflatex">
@@ -32,10 +33,9 @@
 
     <!-- Targets -->
     <target name="clean">
-        <delete file="${report}.log"/>
-        <delete file="${report}.aux"/>
-        <delete file="${report}.bbl"/>
-        <delete file="${report}.blg"/>
+        <delete>
+            <fileset dir="." includes="*.log,*.aux,*.bbl,*.blg"/>
+        </delete>
     </target>
 
 
@@ -44,5 +44,12 @@
         <bibtex file="${report}"/>
         <pdflatex file="${report}.tex"/>
         <pdflatex file="${report}.tex"/>
+    </target>
+
+    <target name="article">
+        <pdflatex file="${article}.tex"/>
+        <bibtex file="${article}"/>
+        <pdflatex file="${article}.tex"/>
+        <pdflatex file="${article}.tex"/>
     </target>
 </project>
