@@ -10,9 +10,14 @@
 \usepackage{graphicx}
 \usepackage{algorithm}
 \usepackage{algorithmic}
+\usepackage{wrapfig}
+\usepackage{caption3} % load caption package kernel first
+\DeclareCaptionOption{parskip}[]{} % disable "parskip" caption option
+\usepackage[font=small,format=plain,labelfont=bf,up,textfont=it,up]{caption}
 
 
-\title{Document Indexing Aho-Corasick State Machines}
+
+\title{Document Indexing Using Aho-Corasick State Machines}
 \author{Damien DuBois, Justin Kamerman, Ramanpreet Singh}
 \date{\today}
 
@@ -32,12 +37,10 @@ for every search has become prohibitive and indexing, in some form or
 another, is an essential optimization for any modern information
 retrieval system. In this paper we demonstrate the use of
 Aho-Corasick, not as an alternative to indexing but as a lexical
-scanning tool employed in the construction of an inverted index. We
-provide analytic predictions of our indexing algorithm and an
-empirical evaluation of our inverted index implementation is conducted
-and the results analyzed. Consistent with our analysis, the hybrid
-approach yields significant improvement over a naive
-implementation. In addition, the modular architecture of our indexer
+scanning tool employed in the construction of an inverted
+index. Consistent with analytical predictions, an empirical evaluation
+of our hybrid indexer, shows significant improvement over a
+na\"{\i} implementation. In addition, the modular architecture of our indexer
 allowed the indexing task to be parallelized over multiple physical
 nodes. The results of parallelization are presented and offer
 interesting insights towards further horizontal scaling.
@@ -51,9 +54,7 @@ automata, pattern matching, parsing
 % Introduction
 %----------------------------------------
 \section{Introduction}
-Information Retrieval is a fast becoming the dominant form of
-information access, overtaking traditional relational database style
-searching\cite{RefWorks:109}. The basis of most document retrieval systems is the
+The basis of most document retrieval systems is the
 term-document incidence matrix. This matrix is typically sparse and
 more efficiently represented as an inverted-index which maps terms to
 the parts of a document where they occur.
@@ -81,54 +82,12 @@ is conducted and the results analyzed.
 
 
 %----------------------------------------
-% Research Plan
-%----------------------------------------
-\section{Research Plan}
-\label{sec:researchplan}
-The primary goals of this research project is to construct an
-information retrieval framework within which specific implementations
-can be evaluated under various operating conditions. To initiate the
-synthesis of this general framework, a reference implementation will
-be built, based on the notion of a simple inverted index.
-
-The software architecture of the reference implementation will be
-carefully documented and follow established design patterns in order
-to facilitate the future construction of alternative document search
-schemes within the same framework. The framework will be designed to
-be executed in a distributed deployment such that it may be used to
-evaluate the effect of parallelization on a particular algorithm.
-
-The performance of the reference implementation will be tested with
-respect to the following operating parameters and compared to analytic
-expectations:
-
-\begin{itemize}
-  \item Number of index keywords
-  \item Number of documents in collection
-  \item Average size of documents
-\end{itemize}
-
-In addition, the reference implementation will be compared against a
-naïve implementation of the inverted indexer. The naïve implementation
-provided a baseline for further evaluation. 
-
-
-%----------------------------------------
 % Design
 %----------------------------------------
-\section{Design}
-\label{sec:design}
-A black-box functional view of the indexing system is show in figure
-\ref{fig:blackbox}. The system processes a continuous incoming flow of
-documents and distribute them to parallel indexing threads running on
-physically separate, heterogeneous nodes.  Document queries are performed
-using an evolving search index. The operational balance is to
-timeously index new additions to the corpus while servicing concurrent
-search requests. A view as to how the components of the indexer system
-are deployed is show in figure \ref{fig:deploymentmodel}.
-
+\section{Implementation}
+\label{sec:implementation}
 As can be seen in figure \ref{fig:deploymentmodel}, the indexer
-processes are symmetrical and deployed on multiple physical nodes. The
+processes are symmetrical and can deployed on multiple physical nodes. The
 individual indexers do not interact directly with one another, making
 for a simple deployment and operation model. The execution loop of
 each indexer is as follows:
@@ -163,22 +122,14 @@ search query wold be as follows:
     intersection of the canons of the search terms.
 \end{enumerate}
 
-\begin{figure}
-  \begin{center}
-        \includegraphics[width=\textwidth,height=!]{blackbox}
-  \end{center}
-  \caption{A black-box view of the indexer}
-  \label{fig:blackbox}
-\end{figure} 
 
-
-\begin{figure}
+\begin{wrapfigure}{r}{0.70\textwidth}
   \begin{center}
-        \includegraphics[width=\textwidth,height=!]{deploymentmodel}
+        \includegraphics[width=0.70\textwidth,height=!]{deploymentmodel}
   \end{center}
   \caption{Indexer deployment model}
   \label{fig:deploymentmodel}
-\end{figure} 
+\end{wrapfigure} 
 
 
 %----------------------------------------
@@ -206,7 +157,6 @@ to understand that all these processes can be parallelized. In section
 explore the performance gain of running parallel instances
 simultaneously.
 
-
 All tests were run on a single Intel Core 2 Duo 2GHz processor, 1GB
 RAM, running a 64-bit Linux 2.6.35 SMP kernel. The Java Virtual
 Machine used was version 1.6.0-24. The database used was MySQL,
@@ -227,73 +177,54 @@ for different numbers of keywords from the 10,000 keyword database and
 explore the time and space complexity for the building of the state
 machine and the building of the index using the state machine.
 
+The time taken to construct the Aho-Corasick state machine was
+measured for different numbers of keywords. The results of this test
+is shown in figure \ref{fig:numkeywordstimecomplexbuildsm} and
+construction time can easily be considered linear with respect to the
+number of keywords. This is consistent with \cite{RefWorks:103} which
+proves that the state machine construction algorithm is linearly
+proportional to the sum of the lengths of the keywords used to
+construct the state machine.
 
-\subsubsection{Time Complexity}
-\begin{itemize}
-\item \textbf{State Machine Construction:}
-  The time taken to construct the Aho-Corasick state machine was
-  measured for different numbers of keywords. The results of this test
-  is shown in figure \ref{fig:numkeywordstimecomplexbuildsm} and construction time
-  can easily be considered linear with respect to the number of
-  keywords. This is consistent with \cite{RefWorks:103} which proves
-  that the state machine construction algorithm is linearly
-  proportional to the sum of the lengths of the keywords used to
-  construct the state machine.
+The time taken for a state machines to build an inverted index of our
+corpus was measured. The test was repeated using state machines
+constructed with a varying number of keywords and the results plotted
+in figure \ref{fig:numkeywordstimecomplexbuildindex}. According to
+\cite{RefWorks:103} which proves that the number of state transitions
+involved in processing an input string is independent of the number of
+keywords used to construct the state machine, we would not expect the
+time complexity to increase with the size of the keyword set. However,
+as can be seen in \ref{fig:numkeywordstimecomplexbuildindex}, the time
+to build the index increases logarithmically with the number of
+keywords. This is likely due to the fact that as the number of
+keywords increases, so does the size of the index and the number of
+database interacts required to store and update the index.
 
-  \begin{figure}[h]
-    \begin{center}
-      \includegraphics[width=\textwidth,height=!]{numkeywordstimecomplexbuildsm}
-    \end{center}
+
+\begin{figure}[ht]
+  \begin{minipage}[b]{0.5\linewidth}
+    \centering
+    \includegraphics[width=\textwidth]{numkeywordstimecomplexbuildsm}
     \caption{Time to build Aho-Corasick state machine as a function of
       the number of keywords. Time taken is shown in milliseconds on the
       y-axis and the number of keywords on the x-axis}
     \label{fig:numkeywordstimecomplexbuildsm}
-  \end{figure} 
-  
-\item \textbf{Index Construction:} 
-  The time taken for a state machines to build an inverted index of our
-  corpus was measured. The test was repeated using state machines
-  constructed with a varying number of keywords and the results plotted
-  in figure \ref{fig:numkeywordstimecomplexbuildindex}. According to
-  \cite{RefWorks:103} which proves that the number of state transitions
-  involved in processing an input string is independent of the number of
-  keywords used to construct the state machine, we would not expect the
-  time complexity to increase with the size of the keyword set. However,
-  as can be seen in \ref{fig:numkeywordstimecomplexbuildindex}, the time
-  to build the index increases logarithmically with the number of
-  keywords. This is likely due to the fact that as the number of keywords
-  increases, so does the size of the index and the number of database
-  interacts required to store and update the index.
-
-  \begin{figure}[h]
-    \begin{center}
-      \includegraphics[width=\textwidth,height=!]{numkeywordstimecomplexbuildindex}
-    \end{center}
+  \end{minipage}
+  \hspace{0.5cm}
+  \begin{minipage}[b]{0.5\linewidth}
+    \centering
+    \includegraphics[width=\textwidth]{numkeywordstimecomplexbuildindex}
     \caption{Time to build the inverted index as a function of the
       number of keywords. Time taken is shown in milliseconds on the
       y-axis and the number of keywords on the x-axis}
     \label{fig:numkeywordstimecomplexbuildindex}
-  \end{figure} 
+  \end{minipage}
+\end{figure}
 
-\end{itemize}
-
-
-\subsubsection{Space Complexity}
-As we would have expected it, the space used by the index in the
-database is proportional to the number of words we are using. It also
-means that our words have the same probability at the beginning or at
-the end of our 12,000 word dictionary. This result is reflected in
-figure \ref{fig:numkeywordsspacecomplexbuildindex}.
-
-\begin{figure}
-  \begin{center}
-    \includegraphics[width=\textwidth,height=!]{numkeywordsspacecomplexbuildindex}
-  \end{center}
-    \caption{Size of index as a function of the number of
-      keywords. The number of database rows used to store the index is
-      shown on the y-axis and the number of keywords on the x-axis} 
-    \label{fig:numkeywordsspacecomplexbuildindex}
-\end{figure} 
+The space used by the index in the database is proportional to the
+number of words we are using. It also means that our words have the
+same probability at the beginning or at the end of our 12,000 word
+dictionary.
 
 
 %----------------------------------------
@@ -312,8 +243,6 @@ state machine is built. We can expect that the time to build the State
 machine won’t change with the number of posts and the time to build
 the index will increase almost linearly with the number of posts.  
 
-
-\subsubsection{Time Complexity}
 As we were expecting, the time to build the index with the state
 machine strategy is linear with respect to the number of post, as
 depicted in figure \ref{fig:corpsizetimecomplexbuildindex}. However, to be able
@@ -321,32 +250,31 @@ to perform this experiment we had to run the indexer program with
 batches of 10,000 posts due to Java heap space problems. As a result, the state
 machine is rebuilt every 10,000 posts.  
 
-\begin{figure}[h!]
-  \begin{center}
-    \includegraphics[width=\textwidth,height=!]{corpsizetimecomplexbuildindex}
-  \end{center}
+The space used to store the index in the database is
+proportional to the size of the corpus as shown in figure
+\ref{fig:corpsizespacecomplexbuildindex}.
+
+
+\begin{figure}[ht]
+  \begin{minipage}[b]{0.5\linewidth}
+    \centering
+    \includegraphics[width=\textwidth]{corpsizetimecomplexbuildindex}
     \caption{Time to build the inverted index as a function of the
       size of the corpus. Time taken is shown in milliseconds on the
       y-axis and the number of documents in the collection on the
       x-axis} 
     \label{fig:corpsizetimecomplexbuildindex}
-\end{figure} 
-
-
-\subsubsection{Space Complexity}
-As expected, the space used to store the index in the database is
-proportional to the size of the corpus. This result is shown in figure
-\ref{fig:corpsizespacecomplexbuildindex}.
-
-\begin{figure}[h!]
-  \begin{center}
-    \includegraphics[width=\textwidth,height=!]{corpsizespacecomplexbuildindex}
-  \end{center}
+  \end{minipage}
+  \hspace{0.5cm}
+  \begin{minipage}[b]{0.5\linewidth}
+    \centering
+    \includegraphics[width=\textwidth]{corpsizespacecomplexbuildindex}
     \caption{Size of index as a function of the size of the
       corpus. The number of database rows used to store the index is
       shown on the y-axis and the number of documents in the
       collection on the x-axis} 
     \label{fig:corpsizespacecomplexbuildindex}
+  \end{minipage}
 \end{figure}
 
 
@@ -360,69 +288,61 @@ be proportional to the total length of all posts. Let’s focus on this
 aspect and study the impact of the length of the post on the time to
 build the state machine. To do that we built a 5,000 posts database
 with posts that are all composed of 20,000 characters. Then, we ran
-our system on different length of substring of these posts.  
+our system on different length of substring of these posts. 
 
 
-\subsubsection{Time Complexity}
-\begin{itemize}
-\item \textbf{State Machine Construction:} 
-  As expected, state machine construction time
-  does not depend on the length of the documents. Nonetheless it is
-  interesting to compare figures \ref{fig:docsizetimecomplexbuildsm}
-  and \ref{fig:docsizetimecomplexbuildindex}, showing the construction
-  times for the state machine and inverted index relative to the
-  average document size. The comparison shows that state machine
-  construction time is several orders of magnitude smaller than index
-  construction and negligible by comparison. Our state machine is
-  built in 770 ms on average for 1000 keywords with a standard
-  deviation of 18ms. 
-
-  \begin{figure}[h!]
-    \begin{center}
-      \includegraphics[width=\textwidth,height=!]{docsizetimecomplexbuildsm}
-    \end{center}
+\begin{figure}[ht]
+  \begin{minipage}[b]{0.5\linewidth}
+    \centering
+    \includegraphics[width=\textwidth]{docsizetimecomplexbuildsm}
     \caption{Time to build Aho-Corasick state machine as a function of
       the average document size. Time taken is shown in milliseconds on the
       y-axis and the average document size in characters on the x-axis}
     \label{fig:docsizetimecomplexbuildsm}
-  \end{figure} 
-
-\item \textbf{Index Construction:} 
-  As expected the time to build the indexer is almost linear with
-  respect to the average document size. This relationship is shown in
-  figure \ref{fig:docsizetimecomplexbuildindex}.
-
-  \begin{figure}[h!]
-    \begin{center}
-      \includegraphics[width=\textwidth,height=!]{docsizetimecomplexbuildindex}
-    \end{center}
+  \end{minipage}
+  \hspace{0.5cm}
+  \begin{minipage}[b]{0.5\linewidth}
+    \centering
+    \includegraphics[width=\textwidth]{docsizetimecomplexbuildindex}
     \caption{Time to build an inverted index as a function of the
       average document size. Time taken is shown in milliseconds on the
       y-axis and the average document size in characters on the x-axis} 
     \label{fig:docsizetimecomplexbuildindex}
-  \end{figure} 
+  \end{minipage}
+\end{figure}
+ 
 
-\end{itemize}
+State machine construction time does not depend on the
+length of the documents. Nonetheless it is interesting to compare
+figures \ref{fig:docsizetimecomplexbuildsm} and
+\ref{fig:docsizetimecomplexbuildindex}, showing the construction times
+for the state machine and inverted index relative to the average
+document size. The comparison shows that state machine construction
+time is several orders of magnitude smaller than index construction
+and negligible by comparison. Our state machine is built in 770 ms on
+average for 1000 keywords with a standard deviation of 18ms.
+
+As expected the time to build the indexer is almost linear with
+respect to the average document size. This relationship is shown in
+figure \ref{fig:docsizetimecomplexbuildindex}.
+
+As expected, the larger the documents the more records created to
+represent the index. However, the relationship is not linear since if
+a word occurs many times in the same post we just save it once in the
+database. This relationship is shown in figure
+\ref{fig:docsizespacecomplexbuildindex}.
 
 
-\subsubsection{Space Complexity}
-Here we are studying the number of records in our index database as a
-function of the average document size. As expected, the larger the documents
-the more records created to represent the index. However, this is not linear
-since if a word occurs many times in the same post we just save it
-once in the database. This relationship is shown in figure
-\ref{fig:docsizespacecomplexbuildindex}. 
-
-\begin{figure}[h!]
+\begin{wrapfigure}{r}{0.70\textwidth}
   \begin{center}
-    \includegraphics[width=\textwidth,height=!]{docsizespacecomplexbuildindex}
+        \includegraphics[width=0.70\textwidth,height=!]{docsizespacecomplexbuildindex}
   \end{center}
   \caption{Size of index as a function of the average document
     size. The number of database rows used to store the index is
-      shown on the y-axis and the average document size in characters
-      on the x-axis}  
+    shown on the y-axis and the average document size in characters
+    on the x-axis}  
   \label{fig:docsizespacecomplexbuildindex}
-\end{figure} 
+\end{wrapfigure} 
 
 
 %----------------------------------------
@@ -464,8 +384,6 @@ we find at least one keyword per document). In the following
 subsections we compare the results for this algorithm with our system
 results for different number of keywords and posts.
 
-
-\subsubsection{Complexity Analysis}
 For the na\"{i}ve algorithm described above, the theoretical worst
 case time complexity relationship is shown in equation
 \ref{eqn:timecomplexworstcase}.  
@@ -479,34 +397,19 @@ where \(keyNum\) is the number of keywords, \(docNum\) is the number
 of documents, \(maxLength\) is the maximum document length, and
 \(conn\) is the time taken to create a connection to the database. For
 the state machine algorithm the theoretical complexity relationship is
-given by 
-equation \ref{eqn:timecomplexsm}.
+given by equation \ref{eqn:timecomplexsm}.
 
 \begin{equation}
 \label{eqn:timecomplexsm}
 Time \propto docNum * ( maxLength + conn)
 \end{equation}
 
-
-\subsubsection{Document Size}
-For this experiment we fixed the number of keywords to 1,000 and the
-number of documents to 5,000 and we ran our code on a database
-composed of document of different length. The experiment results are
-shown in figure \ref{fig:naivedocumentsize}.
-
-\begin{figure}[h!]
-  \begin{center}
-    \includegraphics[width=\textwidth,height=!]{naivedocumentsize}
-  \end{center}
-  \caption{Time to build an inverted index as a function of the
-      average document size. Time taken is shown in miliseconds on the
-      y-axis and the average document size in characters on the x-axis}
-  \label{fig:naivedocumentsize}
-\end{figure} 
-
-
-As expected, the curves for both our indexer and the naive indexer are
-almost linear since for the naive implementation:
+To exmaine the effect of document size, the number of keywords was
+fixed at 1,000 and the number of documents to 5,000 and we ran our
+code on a database composed of document of different length. The
+experiment results are shown in figure \ref{fig:naivedocumentsize}. As
+expected, the curves for both our indexer and the naive indexer are
+almost linear since for the naive implementation: 
 
 \[Time \propto (keyNum * docNum) * maxLength + conn * keyNum\]
 
@@ -518,23 +421,32 @@ We can observe that for a small length of document naive method is
 faster since \(keyNum\) is smaller than \(docNum\). For \(docLength = 1300\)
 our indexer is far more efficient. To see this effect more clearly,
 experiment results are plotted on a logarithmic scale in figure
-\ref{fig:naivedocumentsizelog}.
+\ref{fig:naivedocumentsizelog}.As expected, the two implementations
+exhibit a linear response to the number of keywords used. In the
+na\"{i}ve implemementation:  
 
-\begin{figure}[h!]
-  \begin{center}
-    \includegraphics[width=\textwidth,height=!]{naivedocumentsizelog}
-  \end{center}
-  \caption{Time to build an inverted index as a function of the
+
+\begin{figure}[ht]
+  \begin{minipage}[b]{0.5\linewidth}
+    \centering
+    \includegraphics[width=\textwidth]{naivedocumentsize}
+    \caption{Time to build an inverted index as a function of the
+      average document size. Time taken is shown in miliseconds on the
+      y-axis and the average document size in characters on the x-axis}
+    \label{fig:naivedocumentsize}
+  \end{minipage}
+  \hspace{0.5cm}
+  \begin{minipage}[b]{0.5\linewidth}
+    \centering
+    \includegraphics[width=\textwidth]{naivedocumentsizelog}
+    \caption{Time to build an inverted index as a function of the
       average document size. Time taken is shown in milliseconds on the
       y-axis and the average document size in characters on the
       logarithmic x-axis}
-  \label{fig:naivedocumentsizelog}
-\end{figure} 
+    \label{fig:naivedocumentsizelog}
+  \end{minipage}
+\end{figure}
 
-
-\subsubsection{Number of Keywords}
-As expected, the two implementations exhibit a linear response to the
-number of keywords used. In the na\"{i}ve implemementation:
 
 \[Time \propto (keyNum * maxLength) * docNum + conn * keyNum\]
 
@@ -552,33 +464,33 @@ keyword into each document and so increase the time complexity.
 The experiment results are shown in figure \ref{fig:naivenumkeywords}
 and on a logarithmic scale in figure \ref{fig:naivenumkeywordslog}.
 
-\begin{figure}[p]
-  \begin{center}
-    \includegraphics[width=\textwidth,height=!]{naivenumkeywords}
-  \end{center}
-  \caption{Time to build an inverted index as a function of the
+
+\begin{figure}[ht]
+  \begin{minipage}[b]{0.5\linewidth}
+    \centering
+    \includegraphics[width=\textwidth]{naivenumkeywords}
+    \caption{Time to build an inverted index as a function of the
       number of keywords. Time taken is shown in milliseconds on the
       y-axis and the number of keywords on the x-axis}
-  \label{fig:naivenumkeywords}
-\end{figure} 
-
-
-\begin{figure}[p]
-  \begin{center}
-    \includegraphics[width=\textwidth,height=!]{naivenumkeywordslog}
-  \end{center}
-  \caption{Time to build an inverted index as a function of the
+    \label{fig:naivenumkeywords}
+  \end{minipage}
+  \hspace{0.5cm}
+  \begin{minipage}[b]{0.5\linewidth}
+    \centering
+    \includegraphics[width=\textwidth]{naivenumkeywordslog}
+    \caption{Time to build an inverted index as a function of the
       number of keywords. Time taken is shown in milliseconds on the
       y-axis and the number of keywords on the logarithmic x-axis}
-  \label{fig:naivenumkeywordslog}
-\end{figure} 
+    \label{fig:naivenumkeywordslog}
+  \end{minipage}
+\end{figure}
 
 
-\subsubsection{Size of Corpus}
 As expected, the time complexity is linearly related to the number of
-documents being indexed. The experiment results are shown in figure
-\ref{fig:naivesizecorpus} and on a logarithmic scale in figure
-\ref{fig:naivesizecorpuslog}. For the na\"{i}ve implementation:
+documents being indexed. The experiment results, in this respect, are
+shown in figure \ref{fig:naivesizecorpus} and on a logarithmic scale
+in figure \ref{fig:naivesizecorpuslog}. For the na\"{i}ve
+implementation:
 
 \[Time \propto (docNum * maxLenght + conn) * keyNum\]
  
@@ -587,28 +499,28 @@ and in our Aho-Corasick state machine method:
 \[Time \propto docNum * maxLenght + conn * docNum\]
 
 
-\begin{figure}[p]
-  \begin{center}
-    \includegraphics[width=\textwidth,height=!]{naivesizecorpus}
-  \end{center}
-  \caption{Time to build an inverted index as a function of the
+\begin{figure}[ht]
+  \begin{minipage}[b]{0.5\linewidth}
+    \centering
+    \includegraphics[width=\textwidth]{naivesizecorpus}
+    \caption{Time to build an inverted index as a function of the
       number of documents being indexed. Time taken is shown in
       milliseconds on the y-axis and the number of documents on the
       x-axis} 
-  \label{fig:naivesizecorpus}
-\end{figure} 
-
-
-\begin{figure}[p]
-  \begin{center}
-    \includegraphics[width=\textwidth,height=!]{naivesizecorpuslog}
-  \end{center}
-  \caption{Time to build an inverted index as a function of the
-      number of documents being indexed. Time taken is shown in
+    \label{fig:naivesizecorpus}
+  \end{minipage}
+  \hspace{0.5cm}
+  \begin{minipage}[b]{0.5\linewidth}
+    \centering
+    \includegraphics[width=\textwidth]{naivesizecorpuslog}
+    \caption{Time to build an inverted index as a function of the
+    number of documents being indexed. Time taken is shown in
       milliseconds on the y-axis and the number of documents on the
       logarithmic x-axis} 
   \label{fig:naivesizecorpuslog}
-\end{figure} 
+  \end{minipage}
+\end{figure}
+
 
 
 %----------------------------------------
@@ -621,25 +533,9 @@ deploy multiple instances of the program to work concurrently on the same
 indexing task. The instances interact via the database which
 synchronizes their operations on the corpus and the index itself. To
 investigate the effect of parallelization on the indexer operation, the
-indexer was deployed as follows:
-
-\begin{itemize}
-\item Single database server storing documents, keywords, and the
-  resulting index.
-\item Four indexer nodes each running a single instance of the indexer
-  program. 
-\end{itemize}
-
-This deployment as well as a description of the sequence of operation
-are shown in figure \ref{fig:paralleldeploymentmodel}.
-
-\begin{figure}[h]
-  \begin{center}
-    \includegraphics[width=\textwidth,height=!]{paralleldeploymentmodel}
-  \end{center}
-  \caption{Deployment model of parallel indexer} 
-  \label{fig:paralleldeploymentmodel}
-\end{figure}
+indexer was deployed using a single database server storing documents,
+keywords, and the resulting index; four indexer nodes each running a
+single instance of the indexer program. 
 
 In this experiment a corpus of 100,000 documents and 1000 keywords were
 used, each document 5000 words in length. Tests were run using various
@@ -650,21 +546,8 @@ to account for differences in the physical capabilities and
 configuration of the worker nodes. Next, a series of tests was
 performed using a corpus of 800,000 documents to investigate the
 effect of corpus size on performance. The results of this experiment
-are shown in figure \ref{fig:parallelization} and described in detail
-in the following section.
+are shown in figure \ref{fig:parallelization}.
 
-\begin{figure}[h]
-  \begin{center}
-    \includegraphics[width=\textwidth,height=!]{parallelization}
-  \end{center}
-  \caption{Performance characteristics of parallel indexer
-    deployment. The \textit{ideal} curve shows the theoretical
-    performance curve based on linear combination of average
-    individual node performance over the corpus} 
-  \label{fig:parallelization}
-\end{figure} 
-
-\subsubsection{Results}
 For the 100,000 document corpus, increasing the number of nodes
 increases throughput but with diminishing returns. As the database
 connection pool is saturated, this becomes the limiting factor of the
@@ -688,6 +571,17 @@ scan times to retrieve and update records. This effect could be
 alleviated through the use of indices and other database optimization
 techniques, however, as for the smaller document
 collection, this degradation is ultimately unavoidable.
+
+
+\begin{wrapfigure}{r}{0.70\textwidth}
+  \begin{center}
+        \includegraphics[width=0.60\textwidth,height=!]{parallelization}
+  \end{center}
+  \caption{Performance characteristics of parallel indexer
+    deployment. The \textit{ideal} curve shows the theoretical
+    performance curve based on linear combination of average
+    individual node performance over the corpus} 
+\end{wrapfigure} 
 
 
 %----------------------------------------
