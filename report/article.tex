@@ -38,12 +38,12 @@ another, is an essential optimization for any modern information
 retrieval system. In this paper we demonstrate the use of
 Aho-Corasick, not as an alternative to indexing but as a lexical
 scanning tool employed in the construction of an inverted
-index. Consistent with analytical predictions, an empirical evaluation
-of our hybrid indexer, shows significant improvement over a
-na\"{\i} implementation. In addition, the modular architecture of our indexer
-allowed the indexing task to be parallelized over multiple physical
-nodes. The results of parallelization are presented and offer
-interesting insights towards further horizontal scaling.
+index. Consistent with our analysis, an empirical evaluation of our
+indexer implementation shows significant improvement over a na\"{\i}ve
+algorithm. The modular architecture of our indexer allows the indexing
+task to be parallelized over multiple physical nodes. The results of
+parallelization are presented and offer interesting insights towards
+further horizontal scaling.
 \\\\
 {\bf Keywords:} inverted index, Aho-Corasick state machine, finite
 automata, pattern matching, parsing
@@ -61,24 +61,20 @@ the parts of a document where they occur.
 
 In order to construct an inverted index, documents must be scanned to
 determine term frequencies. The Aho-Corasick string matching
-algorithm\cite{RefWorks:103} is a simple and efficient text scanning algorithm. The
-algorithm constructs a finite state machine to scan for a given set of
-keywords. It is, in effect, a reduced grammar regular expression
-parser of the type described in \cite{RefWorks:111}. The algorithm is simple and
-efficient, construction time being proportional to the sum of the
-length of the keyword set, and the number of state transitions
-required to scan a document is independent of the number of the size
-of the keyword set. Aho-Corasick was originally proposed as a
-bibliographic search mechanism, efficient enough to preclude the
-construction and maintenance of a search index. As the size of
-document collections have grown since the publishing of the
-Aho-Corasick algorithm, document indexing is essential for efficient
-document search. In this paper we demonstrate the use of Aho-Corasick,
-not as an alternative to indexing but as a lexical scanning tool
-employed in the construction of an inverted index. We provide analytic
-predictions of our implementation against a naive algorithm and
-finally, an empirical evaluation of our inverted index implementation
-is conducted and the results analyzed.
+algorithm\cite{RefWorks:103} is a simple and efficient text scanning
+algorithm. The algorithm constructs a finite state machine to scan for
+a given set of keywords. It is, in effect, a reduced grammar regular
+expression parser of the type described in \cite{RefWorks:111}. The
+algorithm is simple and efficient, construction time being
+proportional to the sum of the length of the keyword set, and the
+number of state transitions required to scan a document is independent
+of the number of the size of the keyword set. In this paper we
+demonstrate the use of Aho-Corasick, not as an alternative to indexing
+but as a lexical scanning tool employed in the construction of an
+inverted index. We provide analytic predictions of our implementation
+against a na\"{\i}ve algorithm and finally, an empirical evaluation of
+our inverted indexer implementation is conducted and the results
+analyzed.
 
 
 %----------------------------------------
@@ -86,50 +82,46 @@ is conducted and the results analyzed.
 %----------------------------------------
 \section{Implementation}
 \label{sec:implementation}
-As can be seen in figure \ref{fig:deploymentmodel}, the indexer
-processes are symmetrical and can deployed on multiple physical nodes. The
-individual indexers do not interact directly with one another, making
-for a simple deployment and operation model. The execution loop of
-each indexer is as follows:
+The Aho-Corasick indexer was implemented using Java and MySQL
+relational database. Upon startup, the indexer reads a list of index
+keywords and synonyms from the database and constructs an Aho-Corasick
+state machine. The indexer then enters a loop in which it uses the
+state machine to scan batches of documents retrieved from the
+database. The document batch size is varied manually to match the
+physical capabilites of the host. A possible enhancement to our
+implementation could include an adaptive loading component. The output
+of the state machine is used to augment a global index maintained in
+the database.
 
-\begin{enumerate}
-\item Initialize the indexer by retrieving a collection of index
-  keywords and synonyms from a relational database. These keywords are
-  used to construct a lexical parser which will be used to scan and
-  index documents.
-\item Retrieve a batch of unprocessed documents from a relational
-  database. The document batch will be sized according to the physical
-  capabilities of each node. In this implementation, this tuning task
-  is a manual exercise but future enhancements may include an adaptive
-  loading component.
-\item Parse each document retrieved and construct an inverted index
-  representing the batch. This \textit{delta} index, as we shall call
-  it, is then used to augment the global index maintained in a
-  relational database.
-\item Repeat from step 2.
-\end{enumerate}
-
-As shown in figure \ref{fig:deploymentmodel}, the searcher component
-can be executed from any node which has access to the relational
-database housing the document index. The execution path of a single
-search query wold be as follows:
-
-\begin{enumerate}
-  \item Canonize search terms based on keyword synonyms defined in the
-    keyword store.
-  \item Execute a boolean query against the inverted index.
-  \item Return the list of corpus documents containing the
-    intersection of the canons of the search terms.
-\end{enumerate}
+Figure \ref{fig:deploymentmodel} shows how multiple indexer instances
+can be deployed in parallel, using the database to synchronize their
+access to the corpus and index. The individual indexers do not
+interact directly with one another, making for a simple deployment and
+operation model.
 
 
 \begin{wrapfigure}{r}{0.70\textwidth}
   \begin{center}
         \includegraphics[width=0.70\textwidth,height=!]{deploymentmodel}
   \end{center}
-  \caption{Indexer deployment model}
+  \caption{Indexer deployment model showing multiple indexer instances
+  operating in parallel}
   \label{fig:deploymentmodel}
 \end{wrapfigure} 
+
+Section \label{sec:experimentresults} describes the tests conducted to
+examine the effect of dictionary, document, and corpus size on the
+performance of a single Aho-Corasick indexer and in \label{sec:naive}
+we compare our indexer performance to that of a na\"{\i}ve
+implementation. Construction time of the state machine as a function
+of dictionary size was tested in order to quantify the overhead it
+imposes on the indexing task. In section \ref{parallelization} we
+explore the performance characteristics of a parallel indexer
+deployment.
+
+All tests were run on a single Intel Core 2 Duo 2GHz processor, 1GB
+RAM, running a 64-bit Linux 2.6.35 SMP kernel. The Java Virtual
+Machine used was version 1.6.0-24. 
 
 
 %----------------------------------------
@@ -137,68 +129,22 @@ search query wold be as follows:
 %----------------------------------------
 \section{Experiment Results}
 \label{sec:experimentresults}
-The primary goal of this project is to be able to reduce the time
-to build a document index. As our system is building the inverted index by
-parsing all documents of the collection, we can expect the
-time complexity of the task to be proportional to the sum total of
-characters in the collection. As a result, changing the  
-number of documents or the average size of each document should
-have a big impact in our time complexity. In addition, our
-implementation will incur the cost of building the Aho-Corasick state
-machines used to scan the documents. We can expect the time to build a
-state machine to be proportional to the sum of the size of the
-keywords. 
-
-Finally we will do a time comparison between our indexer
-implementation and a na\"{i}ve implementation. All the time
-complexities tests are done on a single computer and it is important
-to understand that all these processes can be parallelized. In section
-\ref{parallelization} we install our indexer on multiple computers and
-explore the performance gain of running parallel instances
-simultaneously.
-
-All tests were run on a single Intel Core 2 Duo 2GHz processor, 1GB
-RAM, running a 64-bit Linux 2.6.35 SMP kernel. The Java Virtual
-Machine used was version 1.6.0-24. The database used was MySQL,
-running on the same node as the indexer.
-
 
 %----------------------------------------
 % Number of Keywords
 %----------------------------------------
 \subsection{Number of Keywords}
-To be able to study the impact of different number of keywords, we
-built a keywords database with 10,000 most popular English
-words \cite{wordlist}. All the experiments in this
-part are done with 50,000 posts randomly downloaded from the Internet. The
-idea is to get a good distribution of documents with respect to length
-and content. The experiment shown here consist of building the index
-for different numbers of keywords from the 10,000 keyword database and
-explore the time and space complexity for the building of the state
-machine and the building of the index using the state machine.
-
-The time taken to construct the Aho-Corasick state machine was
-measured for different numbers of keywords. The results of this test
-is shown in figure \ref{fig:numkeywordstimecomplexbuildsm} and
-construction time can easily be considered linear with respect to the
-number of keywords. This is consistent with \cite{RefWorks:103} which
-proves that the state machine construction algorithm is linearly
-proportional to the sum of the lengths of the keywords used to
-construct the state machine.
-
-The time taken for a state machines to build an inverted index of our
-corpus was measured. The test was repeated using state machines
-constructed with a varying number of keywords and the results plotted
-in figure \ref{fig:numkeywordstimecomplexbuildindex}. According to
-\cite{RefWorks:103} which proves that the number of state transitions
-involved in processing an input string is independent of the number of
-keywords used to construct the state machine, we would not expect the
-time complexity to increase with the size of the keyword set. However,
-as can be seen in \ref{fig:numkeywordstimecomplexbuildindex}, the time
-to build the index increases logarithmically with the number of
-keywords. This is likely due to the fact that as the number of
-keywords increases, so does the size of the index and the number of
-database interacts required to store and update the index.
+To study the impact of dictionary size on performance keywords, a
+10,000 keyword dictionary of the most popular English words
+\cite{wordlist} and a corpus of 50,000 blog posts of varying 
+size were used. First, the time taken to construct the Aho-Corasick state
+machine was measured for different numbers of dictionary keywords. The
+results of this test, shown in figure
+\ref{fig:numkeywordstimecomplexbuildsm}, indicate construction time to be
+linear with respect to the number of keywords. This is consistent with
+\cite{RefWorks:103} which formally proves that the state machine
+construction algorithm is linearly proportional to the sum of the
+lengths of the keywords used to construct the state machine.
 
 
 \begin{figure}[ht]
@@ -221,86 +167,69 @@ database interacts required to store and update the index.
   \end{minipage}
 \end{figure}
 
-The space used by the index in the database is proportional to the
-number of words we are using. It also means that our words have the
-same probability at the beginning or at the end of our 12,000 word
-dictionary.
+
+Second, the time taken for a state machines to build an inverted index
+of our corpus was measured. The test was repeated using state machines
+constructed with a varying number of keywords and the results plotted
+in figure \ref{fig:numkeywordstimecomplexbuildindex}. According to
+\cite{RefWorks:103}, which proves that the number of state transitions
+involved in processing an input string is independent of the number of
+keywords used to construct the state machine, we would not expect the
+time complexity to increase with the size of the keyword set. However,
+as can be seen in \ref{fig:numkeywordstimecomplexbuildindex}, the time
+to build the index increases logarithmically with the number of
+keywords. This is likely due to the fact that as the number of
+keywords increases, so does the size of the index and the amount of
+database interactions required to update the index. 
+
+It is important to note that for this experiment, the time taken to
+construct the state machine is two orders of magnitude lower than the
+time taken by the indexing task. This is an important result as it
+validates the practical use of the Aho-Corasick algorithm to index
+large corpora, the overhead of state machine construction time being
+negligible relative to the indexing task. Also, the space used by the
+index in the database is proportional to the number of words we are
+using. 
 
 
 %----------------------------------------
 % Size of Corpus
 %----------------------------------------
 \subsection{Size of Corpus}
-To be able to study the impact of different number of Posts, we built
-a posts database with 400,000 posts randomly downloaded from
-the Internet. Then the keywords used to build the index are simply the
-first 5,000 from the previous keywords database. 
 
-The experiment shown here consist on building the index for different
-number of Posts and explore the time and space complexity for the
-building of the state machine and the building of the index once the
-state machine is built. We can expect that the time to build the State
-machine won’t change with the number of posts and the time to build
-the index will increase almost linearly with the number of posts.  
-
-As we were expecting, the time to build the index with the state
-machine strategy is linear with respect to the number of post, as
-depicted in figure \ref{fig:corpsizetimecomplexbuildindex}. However, to be able
-to perform this experiment we had to run the indexer program with
-batches of 10,000 posts due to Java heap space problems. As a result, the state
-machine is rebuilt every 10,000 posts.  
-
-The space used to store the index in the database is
-proportional to the size of the corpus as shown in figure
-\ref{fig:corpsizespacecomplexbuildindex}.
-
-
-\begin{figure}[ht]
-  \begin{minipage}[b]{0.5\linewidth}
-    \centering
-    \includegraphics[width=\textwidth]{corpsizetimecomplexbuildindex}
+\begin{wrapfigure}{r}{0.70\textwidth}
+  \begin{center}
+        \includegraphics[width=0.70\textwidth,height=!]{corpsizetimecomplexbuildindex}
+  \end{center}
     \caption{Time to build the inverted index as a function of the
       size of the corpus. Time taken is shown in milliseconds on the
       y-axis and the number of documents in the collection on the
       x-axis} 
     \label{fig:corpsizetimecomplexbuildindex}
-  \end{minipage}
-  \hspace{0.5cm}
-  \begin{minipage}[b]{0.5\linewidth}
-    \centering
-    \includegraphics[width=\textwidth]{corpsizespacecomplexbuildindex}
-    \caption{Size of index as a function of the size of the
-      corpus. The number of database rows used to store the index is
-      shown on the y-axis and the number of documents in the
-      collection on the x-axis} 
-    \label{fig:corpsizespacecomplexbuildindex}
-  \end{minipage}
-\end{figure}
+\end{wrapfigure} 
+
+
+To examine the effect of corpus size on the performance of the
+indexer, a 5,000 keyword dictionary and a corpus of 800,000 blog posts
+of various sizes were used. The timing results of indexing corpora of
+varying sizes, shown in figure
+\ref{fig:corpsizetimecomplexbuildindex}, indicate that the time to
+build the index with the state machine is linear with respect to the
+number of posts. 
 
 
 %----------------------------------------
 % Document Size
 %----------------------------------------
 \subsection{Document Size} 
-As we have seen before, the time to build the index is almost
-proportional with the number of post. Theoretically this time should
-be proportional to the total length of all posts. Let’s focus on this
-aspect and study the impact of the length of the post on the time to
-build the state machine. To do that we built a 5,000 posts database
-with posts that are all composed of 20,000 characters. Then, we ran
-our system on different length of substring of these posts. 
-
+To examine the effect of document size on indexer performance, 
+a 5,000 keyword dictionary and 5,000 blog posts were used. Tests were
+run in which the the size of the blog posts was varied, generating the
+performance curve in figure \ref{fig:docsizetimecomplexbuildindex}.  
+As expected the time to build the indexer is almost linear with
+respect to the average document size.
 
 \begin{figure}[ht]
-  \begin{minipage}[b]{0.5\linewidth}
-    \centering
-    \includegraphics[width=\textwidth]{docsizetimecomplexbuildsm}
-    \caption{Time to build Aho-Corasick state machine as a function of
-      the average document size. Time taken is shown in milliseconds on the
-      y-axis and the average document size in characters on the x-axis}
-    \label{fig:docsizetimecomplexbuildsm}
-  \end{minipage}
-  \hspace{0.5cm}
   \begin{minipage}[b]{0.5\linewidth}
     \centering
     \includegraphics[width=\textwidth]{docsizetimecomplexbuildindex}
@@ -309,52 +238,39 @@ our system on different length of substring of these posts.
       y-axis and the average document size in characters on the x-axis} 
     \label{fig:docsizetimecomplexbuildindex}
   \end{minipage}
+  \hspace{0.5cm}
+  \begin{minipage}[b]{0.5\linewidth}
+    \centering
+    \includegraphics[width=\textwidth]{docsizespacecomplexbuildindex}
+    \caption{Size of index as a function of the average document
+      size. The number of database rows used to store the index is
+      shown on the y-axis and the average document size in characters
+      on the x-axis}  
+    \label{fig:docsizespacecomplexbuildindex}
+  \end{minipage}
 \end{figure}
- 
 
-State machine construction time does not depend on the
-length of the documents. Nonetheless it is interesting to compare
-figures \ref{fig:docsizetimecomplexbuildsm} and
-\ref{fig:docsizetimecomplexbuildindex}, showing the construction times
-for the state machine and inverted index relative to the average
-document size. The comparison shows that state machine construction
-time is several orders of magnitude smaller than index construction
-and negligible by comparison. Our state machine is built in 770 ms on
-average for 1000 keywords with a standard deviation of 18ms.
-
-As expected the time to build the indexer is almost linear with
-respect to the average document size. This relationship is shown in
-figure \ref{fig:docsizetimecomplexbuildindex}.
-
-As expected, the larger the documents the more records created to
-represent the index. However, the relationship is not linear since if
-a word occurs many times in the same post we just save it once in the
-database. This relationship is shown in figure
-\ref{fig:docsizespacecomplexbuildindex}.
-
-
-\begin{wrapfigure}{r}{0.70\textwidth}
-  \begin{center}
-        \includegraphics[width=0.70\textwidth,height=!]{docsizespacecomplexbuildindex}
-  \end{center}
-  \caption{Size of index as a function of the average document
-    size. The number of database rows used to store the index is
-    shown on the y-axis and the average document size in characters
-    on the x-axis}  
-  \label{fig:docsizespacecomplexbuildindex}
-\end{wrapfigure} 
-
+Examining the size of the index created, the larger the documents the
+more records created. However, the relationship is not linear since a
+single record is stored to represent one or many occurrences of a
+particular keyword in a document. This relationship is shown in figure  
+\ref{fig:docsizespacecomplexbuildindex}.  
 
 %----------------------------------------
 % Comparison with Naive Index Builder
 %----------------------------------------
 \subsection{Comparison with Na\"{i}ve Index Builder}
-This part focuses on the improvement that our system with respect to
-time complexity in comparison with a na\"{i}ve index builder. The na\"{i}ve
-indexer builder has the same input as our system i.e. a list of
-keywords and a list of documents, and the same output i.e. an inverted
-index corresponding to the keywords and documents. Algorithm
-\ref{alg:invertedindex} is used in principal for both implementations.
+\label{sec:naive}
+In order to quantify the benefits of using the Aho-Corasick algorithm
+for indexing, our indexer performace was compared to that of a
+na\"{i}ve implementation. The na\"{i}ve indexer builder has the same
+input as our system i.e. a list of keywords and a list of documents,
+and the same output i.e. an inverted index corresponding to the
+keywords and documents. Algorithm \ref{alg:invertedindex} is used in
+principal for both implementations. However, whereas the Aho-Corasick
+implementation uses a state machine to scan, the na\"{\i}ve
+indexer tokenizes the document and compares each token to the keyword
+dictionary. 
 
 
 \begin{algorithm}
@@ -372,58 +288,45 @@ index corresponding to the keywords and documents. Algorithm
 \end{algorithmic}
 \end{algorithm}
 
-As we can see this algorithm has a complexity that directly depends on
-the number of keywords $n$, the number of document $m$, and the length
-of document since we have to check in each document for each
-keyword. Moreover, we decided to limit, as much as possible, the
-accesses to the database since it is really time consuming in
-Java. That’s why we do one access to the database for each keywords
-and not for each document. In the state machine we do as much accesses
-to the database as the number of document (in the worst case meaning
-we find at least one keyword per document). In the following
-subsections we compare the results for this algorithm with our system
-results for different number of keywords and posts.
+Algorithm \ref{alg:invertedindex} has a complexity proportional to the
+number of keywords $n$, the number of document $m$, and the average
+document size $\bar{c}$. For our chosen architecture, execution time
+is also effected by database latency. In the case of the
+na\"{\i}ve indexer, we perform one database transaction per keyword
+and in the Aho-Corasick implementation, we perform a database
+transaction per document. For analysis purposes, we designate the
+average database latency per transaction as $\bar{t}$. 
 
-For the na\"{i}ve algorithm described above, the theoretical worst
-case time complexity relationship is shown in equation
-\ref{eqn:timecomplexworstcase}.  
+For the na\"{i}ve indexer implementation described above, the expected
+time complexity relationship is shown in equation
+\ref{eqn:timecomplexworstcase}. For the Aho-Corasick indexer, the
+expected theoretical complexity relationship is given by equation
+\ref{eqn:timecomplexsm}.  
 
 \begin{equation}
 \label{eqn:timecomplexworstcase}
-Time \propto keyNum * ( docNum * maxLength + conn)
+Time \propto n * ( m * \bar{c} + \bar{t} )
 \end{equation}
-
-where \(keyNum\) is the number of keywords, \(docNum\) is the number
-of documents, \(maxLength\) is the maximum document length, and
-\(conn\) is the time taken to create a connection to the database. For
-the state machine algorithm the theoretical complexity relationship is
-given by equation \ref{eqn:timecomplexsm}.
 
 \begin{equation}
 \label{eqn:timecomplexsm}
-Time \propto docNum * ( maxLength + conn)
+Time \propto m * ( \bar{c}  + \bar{t} )
 \end{equation}
 
-To exmaine the effect of document size, the number of keywords was
-fixed at 1,000 and the number of documents to 5,000 and we ran our
-code on a database composed of document of different length. The
-experiment results are shown in figure \ref{fig:naivedocumentsize}. As
-expected, the curves for both our indexer and the naive indexer are
-almost linear since for the naive implementation: 
-
-\[Time \propto (keyNum * docNum) * maxLength + conn * keyNum\]
-
-and for our Aho-Corasick state machine method: 
-
-\[Time \propto docNum * maxLength + conn * docNum\]
-
-We can observe that for a small length of document naive method is
-faster since \(keyNum\) is smaller than \(docNum\). For \(docLength = 1300\)
-our indexer is far more efficient. To see this effect more clearly,
-experiment results are plotted on a logarithmic scale in figure
-\ref{fig:naivedocumentsizelog}.As expected, the two implementations
-exhibit a linear response to the number of keywords used. In the
-na\"{i}ve implemementation:  
+To examine the effect of document size on idexer performance, the number of keywords was
+fixed at 1,000, the number of documents at 5,000, and tests run
+against corpora composed of varying average length. From equations
+\ref{eqn:timecomplexworstcase} and \ref{eqn:timecomplexsm}, we would
+expect both implementations to behave linearly with repect to average
+documetn size and to differ by constant scaling factor $n$, the size
+of the keyword dictionary. The experiment results are shown in figure
+\ref{fig:naivedocumentsize} and support this analysis. Also, we can observe
+that for smaller documents, the na\"{\i}ve method
+performs better. This is attributable to the fact that for smaller
+documents, the database advantage of the na\"{\i}ve implementation is
+enough to overcome the keyword dictionary size scaling factor. To see
+this effect more clearly, experiment results are plotted on a
+logarithmic scale in figure \ref{fig:naivedocumentsizelog}.
 
 
 \begin{figure}[ht]
@@ -448,11 +351,7 @@ na\"{i}ve implemementation:
 \end{figure}
 
 
-\[Time \propto (keyNum * maxLength) * docNum + conn * keyNum\]
-
-and in our Aho-Corasick state machine method: 
-
-\[Time \propto (maxLength + conn) * docNum \]
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 However, we would have expected the state machine method not to depend
 on the number of keyword. The reason why it’s not the case is because
