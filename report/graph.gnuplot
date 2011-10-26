@@ -1,4 +1,4 @@
-# ahostatemachine
+# Ahostatemachinesh-mode
 set terminal png size 1200,800
 set output "parallelization.png"
 set grid

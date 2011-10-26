@@ -88,7 +88,7 @@ keywords and synonyms from the database and constructs an Aho-Corasick
 state machine. The indexer then enters a loop in which it uses the
 state machine to scan batches of documents retrieved from the
 database. The document batch size is varied manually to match the
-physical capabilites of the host. A possible enhancement to our
+physical capabilities of the host. A possible enhancement to our
 implementation could include an adaptive loading component. The output
 of the state machine is used to augment a global index maintained in
 the database.
@@ -257,12 +257,12 @@ particular keyword in a document. This relationship is shown in figure
 \ref{fig:docsizespacecomplexbuildindex}.  
 
 %----------------------------------------
-% Comparison with Naive Index Builder
+% Comparison with Naive Indexer
 %----------------------------------------
-\subsection{Comparison with Na\"{i}ve Index Builder}
+\subsection{Comparison with Na\"{i}ve Indexer}
 \label{sec:naive}
 In order to quantify the benefits of using the Aho-Corasick algorithm
-for indexing, our indexer performace was compared to that of a
+for indexing, our indexer performance was compared to that of a
 na\"{i}ve implementation. The na\"{i}ve indexer builder has the same
 input as our system i.e. a list of keywords and a list of documents,
 and the same output i.e. an inverted index corresponding to the
@@ -289,7 +289,7 @@ dictionary.
 \end{algorithm}
 
 Algorithm \ref{alg:invertedindex} has a complexity proportional to the
-number of keywords $n$, the number of document $m$, and the average
+number of keywords $n$, the number of documents $m$, and the average
 document size $\bar{c}$. For our chosen architecture, execution time
 is also effected by database latency. In the case of the
 na\"{\i}ve indexer, we perform one database transaction per keyword
@@ -313,20 +313,31 @@ Time \propto n * ( m * \bar{c} + \bar{t} )
 Time \propto m * ( \bar{c}  + \bar{t} )
 \end{equation}
 
-To examine the effect of document size on idexer performance, the number of keywords was
-fixed at 1,000, the number of documents at 5,000, and tests run
-against corpora composed of varying average length. From equations
-\ref{eqn:timecomplexworstcase} and \ref{eqn:timecomplexsm}, we would
-expect both implementations to behave linearly with repect to average
-documetn size and to differ by constant scaling factor $n$, the size
-of the keyword dictionary. The experiment results are shown in figure
-\ref{fig:naivedocumentsize} and support this analysis. Also, we can observe
-that for smaller documents, the na\"{\i}ve method
-performs better. This is attributable to the fact that for smaller
-documents, the database advantage of the na\"{\i}ve implementation is
-enough to overcome the keyword dictionary size scaling factor. To see
-this effect more clearly, experiment results are plotted on a
-logarithmic scale in figure \ref{fig:naivedocumentsizelog}.
+In the context of these equations, we describe and interpret our
+empirical results in the following subsections, testing for the effects
+of document size $c$, number of keywords $n$, and number of documents
+$m$.
+
+
+%----------------------------------------
+% Document Size
+%----------------------------------------
+\subsubsection{Document Size}
+To examine the effect of document size on indexer performance, the
+number of keywords was fixed at 1,000, the number of documents at
+5,000, and tests run against corpora composed of varying average
+length. From equations \ref{eqn:timecomplexworstcase} and
+\ref{eqn:timecomplexsm}, we would expect both implementations to
+behave linearly with respect to average document size and to differ by
+a constant scaling factor $n$, the size of the keyword dictionary. The
+experiment results are shown in figure \ref{fig:naivedocumentsize} and
+support this analysis. Also, we observe that for smaller
+documents, the na\"{\i}ve method performs better. This is attributable
+to the fact that for smaller documents, the database advantage of the
+na\"{\i}ve implementation is enough to overcome the keyword dictionary
+size scaling factor. To see this effect more clearly, experiment
+results are plotted on a logarithmic scale in figure
+\ref{fig:naivedocumentsizelog}.
 
 
 \begin{figure}[ht]
@@ -334,7 +345,7 @@ logarithmic scale in figure \ref{fig:naivedocumentsizelog}.
     \centering
     \includegraphics[width=\textwidth]{naivedocumentsize}
     \caption{Time to build an inverted index as a function of the
-      average document size. Time taken is shown in miliseconds on the
+      average document size. Time taken is shown in milliseconds on the
       y-axis and the average document size in characters on the x-axis}
     \label{fig:naivedocumentsize}
   \end{minipage}
@@ -351,14 +362,22 @@ logarithmic scale in figure \ref{fig:naivedocumentsizelog}.
 \end{figure}
 
 
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-
-However, we would have expected the state machine method not to depend
-on the number of keyword. The reason why it’s not the case is because
-when we don’t have any keywords in a document, we don’t access the
-database. Knowing that the database access is very time consuming,
-increasing the number of keyword increases the probability of finding a
-keyword into each document and so increase the time complexity.  
+%----------------------------------------
+% Keywords
+%----------------------------------------
+\subsubsection{Number of Keywords}
+To examine the effect of keyword dictionary size on indexer
+performance, the number of documents was fixed at 5,000, and tests run
+using varying numbers of keywords. From equation
+\ref{eqn:timecomplexworstcase}, we would expect the na\"{\i}ve
+implementation to have a linear dependency on the number of keywords
+and this is supported by the test results. From equation
+\ref{eqn:timecomplexsm} we would not expect the Aho-Corasick
+implementation to depend on the number of keyword however, the test
+results seem to indicate a linear dependency. This can be attributed
+to the fact that the larger the keyword dictionary, the more likely we
+are to find matches in a document and incur the expensive database
+latency cost.
 
 The experiment results are shown in figure \ref{fig:naivenumkeywords}
 and on a logarithmic scale in figure \ref{fig:naivenumkeywordslog}.
@@ -385,18 +404,15 @@ and on a logarithmic scale in figure \ref{fig:naivenumkeywordslog}.
 \end{figure}
 
 
-As expected, the time complexity is linearly related to the number of
-documents being indexed. The experiment results, in this respect, are
-shown in figure \ref{fig:naivesizecorpus} and on a logarithmic scale
-in figure \ref{fig:naivesizecorpuslog}. For the na\"{i}ve
-implementation:
-
-\[Time \propto (docNum * maxLenght + conn) * keyNum\]
- 
-and in our Aho-Corasick state machine method: 
-
-\[Time \propto docNum * maxLenght + conn * docNum\]
-
+%----------------------------------------
+% Corpus Size
+%----------------------------------------
+\subsubsection{Number of Documents}
+From equations \ref{eqn:timecomplexworstcase} and
+\ref{eqn:timecomplexsm}, the time complexity is linearly related to
+the number of documents being indexed. The experiment results, in this
+respect, are shown in figure \ref{fig:naivesizecorpus} and on a
+logarithmic scale in figure \ref{fig:naivesizecorpuslog}.
 
 \begin{figure}[ht]
   \begin{minipage}[b]{0.5\linewidth}
@@ -433,19 +449,31 @@ indexing task. The instances interact via the database which
 synchronizes their operations on the corpus and the index itself. To
 investigate the effect of parallelization on the indexer operation, the
 indexer was deployed using a single database server storing documents,
-keywords, and the resulting index; four indexer nodes each running a
-single instance of the indexer program. 
+keywords, and the resulting index. Four indexer nodes were used, each
+running a single instance of the indexer program. 
 
 In this experiment a corpus of 100,000 documents and 1000 keywords were
 used, each document 5000 words in length. Tests were run using various
 node combinations and the time taken to index the corpus was measured and
 normalized to a throughput metric (documents/second) for convenient
-comparison. Test results using the same number of nodes were averaged
-to account for differences in the physical capabilities and
-configuration of the worker nodes. Next, a series of tests was
+comparison and to account for differences in the physical capabilities
+and configuration of the worker nodes. A series of tests were
 performed using a corpus of 800,000 documents to investigate the
 effect of corpus size on performance. The results of this experiment
 are shown in figure \ref{fig:parallelization}.
+
+
+\begin{wrapfigure}{r}{0.70\textwidth}
+  \begin{center}
+        \includegraphics[width=0.60\textwidth,height=!]{parallelization}
+  \end{center}
+  \caption{Performance characteristics of parallel indexer
+    deployment. The \textit{ideal} curve shows the theoretical
+    performance curve based on linear combination of average
+    individual node performance over the corpus} 
+  \label{fig:parallelization}
+\end{wrapfigure} 
+
 
 For the 100,000 document corpus, increasing the number of nodes
 increases throughput but with diminishing returns. As the database
@@ -470,18 +498,6 @@ scan times to retrieve and update records. This effect could be
 alleviated through the use of indices and other database optimization
 techniques, however, as for the smaller document
 collection, this degradation is ultimately unavoidable.
-
-
-\begin{wrapfigure}{r}{0.70\textwidth}
-  \begin{center}
-        \includegraphics[width=0.60\textwidth,height=!]{parallelization}
-  \end{center}
-  \caption{Performance characteristics of parallel indexer
-    deployment. The \textit{ideal} curve shows the theoretical
-    performance curve based on linear combination of average
-    individual node performance over the corpus} 
-  \label{fig:parallelization}
-\end{wrapfigure} 
 
 
 %----------------------------------------
