@@ -26,5 +26,11 @@ indexers do not interact directly with one another, making for a
 simple deployment and operation model.
 
 
-
 [![Deployment Model](https://github.com/justinkamerman/pati/raw/master/images/deploymentmodel.png)](https://github.com/justinkamerman/pati/raw/master/images/deploymentmodel.png)
+
+[![Overall Class Diagram](https://github.com/justinkamerman/pati/raw/master/images/overallclassdiagram.png)](https://github.com/justinkamerman/pati/raw/master/images/overallclassdiagram.png)
+
+[![Overall Sequence Diagram](https://github.com/justinkamerman/pati/raw/master/images/overallsequencediagram.png)](https://github.com/justinkamerman/pati/raw/master/images/overallsequencediagram.png)
+
+[![Parallelization](https://github.com/justinkamerman/pati/raw/master/images/parallelization.png)](https://github.com/justinkamerman/pati/raw/master/images/parallelization.png)
+
